@@ -14,6 +14,8 @@
 #define nb_motor 8
 #define nb_12v 2
 
+#define BACKPLANE_ID 0
+
 //###################################################
 //             PINOUT FONCTION DEFINITION
 //###################################################
@@ -69,7 +71,7 @@ AnalogIn INPUTBATT2(INPUT_BATT2);
 //             OBJECTS DEFINITION
 //###################################################
 
-//RS485 rs(); ADD ID
+RS485 rs(BACKPLANE_ID);
 I2C i2c1_bus(I2C1_SDA, I2C1_SCL);
 I2C i2c2_bus(I2C2_SDA, I2C2_SCL);
 
@@ -100,5 +102,19 @@ Thread motorallenable;
 Thread motorenable;
 Thread emergencystop;
 Thread readmotorstate;
+
+//###################################################
+//             VARIABLES DEFINITION
+//###################################################
+
+uint8_t enablemotor1;
+uint8_t enablemotor2;
+uint8_t enablemotor3;
+uint8_t enablemotor4;
+uint8_t enablemotor5;
+uint8_t enablemotor6;
+uint8_t enablemotor7;
+uint8_t enablemotor8;
+uint8_t enablemotor[nb_motor] = {enablemotor1, enablemotor2, enablemotor3, enablemotor4, enablemotor5, enablemotor6, enablemotor7, enablemotor8};
 
 #endif
