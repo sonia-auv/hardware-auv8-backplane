@@ -4,8 +4,7 @@
  * 
  ***/
 
-#include "mbed.h"
-#include "rtos.h"
+#include "main.h"
  
 InterruptIn button(PC_13);
 DigitalOut led(LED2);

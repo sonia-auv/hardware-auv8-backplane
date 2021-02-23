@@ -1,0 +1,16 @@
+#ifndef ADRESS_I2C
+#define ADRESS_I2C
+
+#define I2C_M1 0x1000000
+#define I2C_M2 0x1000001
+#define I2C_M3 0x1000000
+#define I2C_M4 0x1000001
+#define I2C_M5 0x1000100
+#define I2C_M6 0x1000101
+#define I2C_M7 0x1000100
+#define I2C_M8 0x1000101
+
+#define I2C_12V1 0x1001100
+#define I2C_12V2 0x1001100
+
+#endif
