@@ -12,6 +12,7 @@
 #define delay 300
 #define battery_delay 20
 #define nb_motor 8
+#define nb_12v 2
 
 //###################################################
 //             PINOUT FONCTION DEFINITION
@@ -80,11 +81,11 @@ INA226 senm5(&i2c2_bus, I2C_M5);
 INA226 senm6(&i2c2_bus, I2C_M6);
 INA226 senm7(&i2c1_bus, I2C_M7);
 INA226 senm8(&i2c1_bus, I2C_M8);
-INA226 sensor_motor[nb_motor] = {senm1, senm2, senm3, senm4, senm5, senm6, senm7, senm8};
 
 INA226 sen12V1(&i2c1_bus, I2C_12V1);
 INA226 sen12V2(&i2c2_bus, I2C_12V2);
-INA226 sensor_12V[2] = {sen12V1, sen12V2};
+
+INA226 sensor[nb_motor+nb_12v] = {senm1, senm2, senm3, senm4, senm5, senm6, senm7, senm8, sen12V1, sen12V2};
 
 //###################################################
 //             THREAD DEFINITION
