@@ -1,5 +1,5 @@
-#ifndef POWERSUPPLY_UTILITY_H
-#define POWERSUPPLY_UTILITY_H
+#ifndef UTILITY_H
+#define UTILITY_H
 
 #define R1 100000
 #define R2 10000
@@ -20,7 +20,7 @@ float_t calcul_tension(double_t value, double_t vref);
  * @param array pointer of the array to put data value in
  * @param value float that has to be put in the array 
 */
-void putFloatInArray(uint8_t * array, float_t value);
+void putFloatInArray(uint8_t * array, float_t value, uint8_t offset = 0);
 
 /**
  * Put a char array in a array
@@ -39,5 +39,7 @@ void putCharInArray(uint8_t * array, char * data, float_t multiplicator = 1);
  * @return value of the transformation
 */
 float_t putCharInFloat(char * data, float_t multiplicator = 1);
+
+double_t readfromAnalog(AnalogIn input);
 
 #endif 

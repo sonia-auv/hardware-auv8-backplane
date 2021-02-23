@@ -24,7 +24,6 @@
  * @brief LTC29990 I2C
  */
  
-#include "mbed.h"
 #include "INA226.h"
 
 INA226::INA226 (I2C* i2c, char addr)
