@@ -90,6 +90,14 @@ INA226 sensor_12V[2] = {sen12V1, sen12V2};
 //             THREAD DEFINITION
 //###################################################
 
-
+Thread ledfeedback;
+Thread inputbattery1;
+Thread inputbattery2;
+Thread voltageread;
+Thread currentread;
+Thread motorallenable;
+Thread motorenable;
+Thread emergencystop;
+Thread readmotorstate;
 
 #endif
