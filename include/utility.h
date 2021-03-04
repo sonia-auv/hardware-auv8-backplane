@@ -4,7 +4,7 @@
 #define R1 100000
 #define R2 10000
 
-#include "main.h"
+#include "mbed.h"
 
 /**
  * Calculation of voltage at the input of a voltage divider
@@ -12,7 +12,7 @@
  * @param value obtained value from the divider
  * @return voltage at R1 of the voltage divider
 */
-float_t calcul_tension(double_t value, double_t vref);
+float_t calcul_tension(double_t value, double_t votlageRef);
 
 /**
  * Puts a float in a array
@@ -40,6 +40,6 @@ void putCharInArray(uint8_t * array, char * data, float_t multiplicator = 1);
 */
 float_t putCharInFloat(char * data, float_t multiplicator = 1);
 
-double_t readfromAnalog(AnalogIn input);
+double_t readfromAnalog(AnalogIn input, double_t voltageref);
 
 #endif 

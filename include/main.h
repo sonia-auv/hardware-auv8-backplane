@@ -26,6 +26,13 @@
 
 #define BACKPLANE_ID 0
 
+#define CMD_BP_VBATT 0
+#define CMD_BP_VOLTAGE 1
+#define CMD_BP_CURRENT 2
+#define CMD_BP_ENABLEMOTOR 3
+#define CMD_BP_READMOTOR 4
+
+
 #define CONFIG      0x4527
 #define CALIBRATION_MOTEUR 0xD1B
 #define CALIBRATION_12V 0x15D8
@@ -76,7 +83,7 @@ INA226 sensor[nb_motor+nb_12v] = {INA226(&i2c2_bus, I2C_M1), INA226(&i2c2_bus, I
     INA226(&i2c1_bus, I2C_M4), INA226(&i2c2_bus, I2C_M5), INA226(&i2c2_bus, I2C_M6), INA226(&i2c1_bus, I2C_M7), 
     INA226(&i2c1_bus, I2C_M8), INA226(&i2c1_bus, I2C_12V1), INA226(&i2c2_bus, I2C_12V2)};
 
-TC74A5 tempSensor[nb_fan] = {TC7A5(&i2c1_bus, I2C_TEMP1), TC7A5(&i2c2_bus, I2C_TEMP2)};
+TC74A5 tempSensor[nb_fan] = {TC74A5(&i2c1_bus, I2C_TEMP1), TC74A5(&i2c2_bus, I2C_TEMP2)};
 
 //###################################################
 //             THREAD DEFINITION

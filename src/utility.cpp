@@ -47,15 +47,15 @@ float_t putCharInFloat(char * data, float_t multiplicator)
     return value*multiplicator;
 }
 
-double_t readfromAnalog(AnalogIn input)
+double_t readfromAnalog(AnalogIn input, double_t voltageRef)
 {
     double_t voltage_battery = 0;
     uint8_t i;
 
     for(i = 0; i < 10; ++i)
     {
-      voltage_battery += calcul_tension(input.read(), vref);
-      ThisThread::sleep_for(20ms);
+      voltage_battery += calcul_tension(input.read(), voltageRef);
+      ThisThread::sleep_for(20);
     }
     return voltage_battery / (double_t)i;
 }

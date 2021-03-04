@@ -8,21 +8,13 @@
 
 void led_feedbackFunction()
 {
-  double_t total_data = 10.0;
   double_t battery1_value = 0;
   double_t battery2_value = 0;
 
   while(true)
   {
-    for(uint8_t i = 0; i < total_data; ++i)
-    {
-      battery1_value += INPUTBATT1.read();                  // Valeur de la batterie donnée avec un test pratique (voir Excel)
-      battery2_value += INPUTBATT2.read();
-      ThisThread::sleep_for(20ms);
-    }
-
-    battery1_value = battery1_value / total_data;
-    battery2_value = battery2_value / total_data;
+    battery1_value = readfromAnalog(INPUT_BATT1, vref);
+    battery2_value = readfromAnalog(INPUT_BATT2, vref);
 
     if(battery1_value > batt_3led)                               // Full - 16,4V
     {
@@ -99,7 +91,7 @@ void led_feedbackFunction()
     {
       LEDKILL = 0;
     }
-    ThisThread::sleep_for(2s);
+    ThisThread::sleep_for(2000);
   }
 }
 
@@ -114,8 +106,8 @@ void voltageBattery()
   while(true)
   {
     rs.read(cmd_array,nb_command,battery_receive);
-    putFloatInArray(battery_send,readfromAnalog(INPUTBATT1));
-    putFloatInArray(battery_send,readfromAnalog(INPUTBATT2), 4);
+    putFloatInArray(battery_send,readfromAnalog(INPUTBATT1, vref));
+    putFloatInArray(battery_send,readfromAnalog(INPUTBATT2, vref), 4);
     rs.write(BACKPLANE_ID,cmd_array[0],nb_byte_send,battery_send);
   }
 }
@@ -201,7 +193,7 @@ void readmotor()
     {
       motor_send[i] = enable_motor_data[i];
     }
-    rs.write(BACKPLANE_ID, cmd_array[0], nb_byte_send, motor_receive);
+    rs.write(BACKPLANE_ID, cmd_array[0], nb_byte_send, motor_send);
   }
 }
 
@@ -224,7 +216,7 @@ void killswitchreadout()
         enable_motor[i] = 0;
       }
     }
-    ThisThread::sleep_for(250ms);
+    ThisThread::sleep_for(250);
   }
 }
 
@@ -251,7 +243,7 @@ void function_fan()
         fan[i] = 0;
       }
     }
-    ThisThread::sleep_for(10s);
+    ThisThread::sleep_for(10000);
   }
 }
 
