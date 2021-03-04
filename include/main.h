@@ -26,11 +26,11 @@
 
 #define BACKPLANE_ID 0
 
-#define CMD_BP_VBATT 0
-#define CMD_BP_VOLTAGE 1
-#define CMD_BP_CURRENT 2
-#define CMD_BP_ENABLEMOTOR 3
-#define CMD_BP_READMOTOR 4
+#define CMD_BP_VBATT 1
+#define CMD_BP_VOLTAGE 2
+#define CMD_BP_CURRENT 3
+#define CMD_BP_ENABLEMOTOR 4
+#define CMD_BP_READMOTOR 5
 
 
 #define CONFIG      0x4527

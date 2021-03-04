@@ -222,7 +222,13 @@ void killswitchreadout()
 
 void function_pwm()
 {
-
+  while(true)
+  {
+    uint8_t cmd_array[1] = {CMD_PWM};
+    uint8_t buffer_receiver_pwm[255];
+    uint8_t nb_commands = 1;
+    uint8_t size_command = 16;
+  }
 }
 
 void function_fan()
