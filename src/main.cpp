@@ -99,6 +99,7 @@ void led_feedbackFunction()
     {
       LEDKILL = 0;
     }
+    ThisThread::sleep_for(2s);
   }
 }
 
@@ -223,11 +224,36 @@ void killswitchreadout()
         enable_motor[i] = 0;
       }
     }
-    ThisThread::sleep_for(200ms);
+    ThisThread::sleep_for(250ms);
   }
 }
 
+void function_pwm()
+{
 
+}
+
+void function_fan()
+{
+  double_t temp[nb_fan];
+
+  while(true)
+  {
+    for(uint8_t i=0; i<nb_fan; ++i)
+    {
+      temp[i] = tempSensor[i].getTemp();
+      if(temp[i] >= turn_on_temp && fan[i] == 0)
+      {
+        fan[i] = 1;
+      }
+      else if(temp[i] <= turn_off_temp && fan[i] == 1)
+      {
+        fan[i] = 0;
+      }
+    }
+    ThisThread::sleep_for(10s);
+  }
+}
 
 int main()
 {
@@ -290,4 +316,10 @@ int main()
 
   emergencystop.start(killswitchreadout);
   emergencystop.set_priority(osPriorityAboveNormal);
+
+  pwmcommand.start(function_pwm);
+  pwmcommand.set_priority(osPriorityHigh);
+
+  fancontroller.start(function_fan);
+  fancontroller.set_priority(osPriorityAboveNormal);
 }

@@ -15,6 +15,9 @@
 #define nb_12v 2
 #define nb_fan 2
 
+#define turn_on_temp 40.0
+#define turn_off_temp 25.0
+
 #define batt_3led 0.462
 #define batt_2led 0.445
 #define batt_1led 0.433
