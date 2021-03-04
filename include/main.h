@@ -24,8 +24,10 @@
 #define BACKPLANE_ID 0
 
 #define CONFIG      0x4527
-#define CALIBRATION 0x1062
-#define CURRENTLSB  0.00061
+#define CALIBRATION_MOTEUR 0xD1B
+#define CALIBRATION_12V 0x15D8
+#define CURRENTLSB_MOTEUR  0.000763
+#define CURRENTLSB_12V 0.000458
 
 //###################################################
 //             PINOUT FONCTION DEFINITION

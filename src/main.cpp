@@ -227,6 +227,8 @@ void killswitchreadout()
   }
 }
 
+
+
 int main()
 {
   for(uint8_t i=0; i<nb_motor; ++i)
@@ -258,7 +260,14 @@ int main()
 
   for(uint8_t i=0; i<nb_motor; ++i)
   {
-    sensor[i].setCalibration(CALIBRATION);
+    sensor[i].setCalibration(CALIBRATION_MOTEUR);
+    sensor[i].setCurrentLSB(CURRENTLSB_MOTEUR);
+  }
+
+  for(uint8_t i=0; i<nb_12v; ++i)
+  {
+    sensor[i+nb_motor].setCalibration(CALIBRATION_12V);
+    sensor[i+nb_motor].setCurrentLSB(CURRENTLSB_12V);
   }
 
   ledfeedback.start(led_feedbackFunction);
