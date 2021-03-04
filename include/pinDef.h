@@ -30,6 +30,9 @@
 
 #define KILLSWITCH PD_2
 
+#define FAN_1 PE_1
+#define FAN_2 PE_0
+
 #define MTR_1 PB_12
 #define MTR_2 PB_13
 #define MTR_3 PE_5

@@ -24,21 +24,21 @@ void led_feedbackFunction()
     battery1_value = battery1_value / total_data;
     battery2_value = battery2_value / total_data;
 
-    if(battery1_value > batt_16V4)                               // Full - 16,4V
+    if(battery1_value > batt_3led)                               // Full - 16,4V
     {
       LED3GBATT1 = 0;
       LED2GBATT1 = 0;
       LED1GBATT1 = 0;
       LEDRBATT1 = 1;
     }
-    else if (battery1_value <= batt_16V4 && battery1_value > batt_15V8)       // 16,4V - 15,8V 
+    else if (battery1_value <= batt_3led && battery1_value > batt_2led)       // 16,4V - 15,8V 
     {
       LED3GBATT1 = 1;
       LED2GBATT1 = 0;
       LED1GBATT1 = 0;
       LEDRBATT1 = 1;
     }
-    else if (battery1_value <= batt_15V8 && battery1_value > batt_15V4)      // 15,8V - 15,4V
+    else if (battery1_value <= batt_2led && battery1_value > batt_1led)      // 15,8V - 15,4V
     {
       LED3GBATT1 = 1;
       LED2GBATT1 = 1;
@@ -52,33 +52,33 @@ void led_feedbackFunction()
       LED1GBATT1 = 1;
       LEDRBATT1 = 0;
     }
-    if(battery1_value > batt_16V4)                               // Full - 16,4V
+    if(battery2_value > batt_3led)                               // Full - 16,4V
     {
-      LED3GBATT1 = 0;
-      LED2GBATT1 = 0;
-      LED1GBATT1 = 0;
-      LEDRBATT1 = 1;
+      LED3GBATT2 = 0;
+      LED2GBATT2 = 0;
+      LED1GBATT2 = 0;
+      LEDRBATT2 = 1;
     }
-    else if (battery1_value <= batt_16V4 && battery1_value > batt_15V8)       // 16,4V - 15,8V 
+    else if (battery2_value <= batt_3led && battery2_value > batt_2led)       // 16,4V - 15,8V 
     {
-      LED3GBATT1 = 1;
-      LED2GBATT1 = 0;
-      LED1GBATT1 = 0;
-      LEDRBATT1 = 1;
+      LED3GBATT2 = 1;
+      LED2GBATT2 = 0;
+      LED1GBATT2 = 0;
+      LEDRBATT2 = 1;
     }
-    else if (battery1_value <= batt_15V8 && battery1_value > batt_15V4)      // 15,8V - 15,4V
+    else if (battery2_value <= batt_2led && battery2_value > batt_1led)      // 15,8V - 15,4V
     {
-      LED3GBATT1 = 1;
-      LED2GBATT1 = 1;
-      LED1GBATT1 = 0;
-      LEDRBATT1 = 1;
+      LED3GBATT2 = 1;
+      LED2GBATT2 = 1;
+      LED1GBATT2 = 0;
+      LEDRBATT2 = 1;
     }
     else                                           // 15,4V - 0V
     {
-      LED3GBATT1 = 1;
-      LED2GBATT1 = 1;
-      LED1GBATT1 = 1;
-      LEDRBATT1 = 0;
+      LED3GBATT2 = 1;
+      LED2GBATT2 = 1;
+      LED1GBATT2 = 1;
+      LEDRBATT2 = 0;
     }
     for(uint8_t i=0; i<nb_motor; ++i)
     {
@@ -99,29 +99,6 @@ void led_feedbackFunction()
     {
       LEDKILL = 0;
     }
-  }
-}
-
-void killswitchreadout()
-{
-  while(true)
-  {
-    for(uint8_t i=0; i<nb_motor; ++i)
-    {
-      if(Killswitch == 1)
-      {
-        enable_motor[i] = 0;
-      }
-      else if(Killswitch == 0 && enable_motor_data[i] == 1)
-      {
-        enable_motor[i] = 1;
-      }
-      else
-      {
-        enable_motor[i] = 0;
-      }
-    }
-    ThisThread::sleep_for(200ms);
   }
 }
 
@@ -227,6 +204,29 @@ void readmotor()
   }
 }
 
+void killswitchreadout()
+{
+  while(true)
+  {
+    for(uint8_t i=0; i<nb_motor; ++i)
+    {
+      if(Killswitch == 1)
+      {
+        enable_motor[i] = 0;
+      }
+      else if(Killswitch == 0 && enable_motor_data[i] == 1)
+      {
+        enable_motor[i] = 1;
+      }
+      else
+      {
+        enable_motor[i] = 0;
+      }
+    }
+    ThisThread::sleep_for(200ms);
+  }
+}
+
 int main()
 {
   for(uint8_t i=0; i<nb_motor; ++i)
@@ -234,6 +234,11 @@ int main()
     motor_power_good[i] = 1;
     pwm[i] = 1500;
     enable_motor[i] = 0;
+  }
+
+  for(uint8_t i=0; i<nb_fan; ++i)
+  {
+    fan[i] = 0;
   }
 
   LED3GBATT1 = 1;
@@ -259,9 +264,6 @@ int main()
   ledfeedback.start(led_feedbackFunction);
   ledfeedback.set_priority(osPriorityAboveNormal);
 
-  emergencystop.start(killswitchreadout);
-  emergencystop.set_priority(osPriorityAboveNormal);
-
   inputbattery.start(voltageBattery);
   inputbattery.set_priority(osPriorityAboveNormal1);
 
@@ -276,4 +278,7 @@ int main()
 
   readmotorstate.start(readmotor);
   readmotorstate.set_priority(osPriorityAboveNormal1);
+
+  emergencystop.start(killswitchreadout);
+  emergencystop.set_priority(osPriorityAboveNormal);
 }

@@ -6,16 +6,18 @@
 #include "utility.h"
 #include "pinDef.h"
 #include "INA226.h"
+#include "TC74A5.h"
 #include "adress_I2C.h"
 #include "RS485/RS485.h"
 #include "RS485/RS485_definition.h"
 
 #define nb_motor 8
 #define nb_12v 2
+#define nb_fan 2
 
-#define batt_16V4 0.462
-#define batt_15V8 0.445
-#define batt_15V4 0.433
+#define batt_3led 0.462
+#define batt_2led 0.445
+#define batt_1led 0.433
 
 #define vref 3.3
 
@@ -50,6 +52,8 @@ DigitalOut LED2GBATT2(LED2_BATT2);
 DigitalOut LED1GBATT2(LED3_BATT2);
 DigitalOut LEDRBATT2(LED4_BATT2);
 
+DigitalOut fan[nb_fan] = {DigitalOut(FAN_1), DigitalOut(FAN_2)};
+
 DigitalOut LEDKILL(LED_KILL);
 
 AnalogIn INPUTBATT1(INPUT_BATT1);
@@ -67,6 +71,8 @@ INA226 sensor[nb_motor+nb_12v] = {INA226(&i2c2_bus, I2C_M1), INA226(&i2c2_bus, I
     INA226(&i2c1_bus, I2C_M4), INA226(&i2c2_bus, I2C_M5), INA226(&i2c2_bus, I2C_M6), INA226(&i2c1_bus, I2C_M7), 
     INA226(&i2c1_bus, I2C_M8), INA226(&i2c1_bus, I2C_12V1), INA226(&i2c2_bus, I2C_12V2)};
 
+TC74A5 tempSensor[nb_fan] = {TC7A5(&i2c1_bus, I2C_TEMP1), TC7A5(&i2c2_bus, I2C_TEMP2)};
+
 //###################################################
 //             THREAD DEFINITION
 //###################################################
@@ -76,8 +82,10 @@ Thread inputbattery;
 Thread voltageread;
 Thread currentread;
 Thread motorenable;
-Thread emergencystop;
 Thread readmotorstate;
+Thread emergencystop;
+Thread pwmcommand;
+Thread fancontroller;
 
 //###################################################
 //             VARIABLES DEFINITION

@@ -54,7 +54,7 @@ double_t readfromAnalog(AnalogIn input)
 
     for(i = 0; i < 10; ++i)
     {
-      voltage_battery += calcul_tension(INPUTBATT1.read(), vref);
+      voltage_battery += calcul_tension(input.read(), vref);
       ThisThread::sleep_for(20ms);
     }
     return voltage_battery / (double_t)i;

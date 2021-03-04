@@ -13,4 +13,7 @@
 #define I2C_12V1 (0x4C<<1)
 #define I2C_12V2 (0x4C<<1)
 
+#define I2C_TEMP1 (0x4D<<1)
+#define I2C_TEMP2 (0x4D<<1)
+
 #endif
