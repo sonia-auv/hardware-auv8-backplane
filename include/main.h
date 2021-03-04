@@ -21,6 +21,10 @@
 
 #define BACKPLANE_ID 0
 
+#define CONFIG      0x4527
+#define CALIBRATION 0x1062
+#define CURRENTLSB  0.00061
+
 //###################################################
 //             PINOUT FONCTION DEFINITION
 //###################################################

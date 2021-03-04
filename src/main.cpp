@@ -192,7 +192,7 @@ void enableMotor()
   uint8_t motor_receive[255]={0};
   uint8_t motor_send[255]={0};
   uint8_t nb_command = 1;
-  uint8_t nb_byte_send = 1;
+  uint8_t nb_byte_send = 8;
 
   while(true)
   {
@@ -201,13 +201,33 @@ void enableMotor()
       for(uint8_t i=0; i<nb_motor; ++i)
       {
         enable_motor_data[i] = motor_receive[i];
+        motor_send[i] = motor_receive[i];
       }
-      rs.write();
+      rs.write(BACKPLANE_ID, cmd_array[0], nb_byte_send, motor_send);
     }
   }  
 }
 
-int main() 
+void readmotor()
+{
+  uint8_t cmd_array[1]={CMD_BP_READMOTOR};
+  uint8_t motor_receive[255]={0};
+  uint8_t motor_send[255]={0};
+  uint8_t nb_command = 1;
+  uint8_t nb_byte_send = 8;
+
+  while(true)
+  {
+    rs.read(cmd_array, nb_command, motor_receive);
+    for(uint8_t i=0; i<nb_motor; ++i)
+    {
+      motor_send[i] = enable_motor_data[i];
+    }
+    rs.write(BACKPLANE_ID, cmd_array[0], nb_byte_send, motor_receive);
+  }
+}
+
+int main()
 {
   for(uint8_t i=0; i<nb_motor; ++i)
   {
@@ -226,6 +246,16 @@ int main()
   LEDRBATT2 = 1;
   LEDKILL = 1;
 
+  for(uint8_t i=0; i<(nb_motor+nb_12v); ++i)
+  {
+    sensor[i].setConfig(CONFIG);
+  }
+
+  for(uint8_t i=0; i<nb_motor; ++i)
+  {
+    sensor[i].setCalibration(CALIBRATION);
+  }
+
   ledfeedback.start(led_feedbackFunction);
   ledfeedback.set_priority(osPriorityAboveNormal);
 
@@ -243,4 +273,7 @@ int main()
 
   motorenable.start(enableMotor);
   motorenable.set_priority(osPriorityAboveNormal2);
+
+  readmotorstate.start(readmotor);
+  readmotorstate.set_priority(osPriorityAboveNormal1);
 }
