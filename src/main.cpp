@@ -221,13 +221,26 @@ void killswitchreadout()
 }
 
 void function_pwm()
-{
+{    
+  uint8_t cmd_array[1] = {CMD_PWM};
+  uint8_t buffer_receiver_pwm[255];
+  uint8_t nb_command = 1;
+  uint8_t size_command = 16;
+
+  uint16_t data_pwm;
   while(true)
   {
-    uint8_t cmd_array[1] = {CMD_PWM};
-    uint8_t buffer_receiver_pwm[255];
-    uint8_t nb_commands = 1;
-    uint8_t size_command = 16;
+    if(rs.read(cmd_array, nb_command, buffer_receiver_pwm) == size_command && Killswitch == 0)
+    {
+      for(uint8_t i=0; i<nb_motor; ++i)
+      {
+        data_pwm = buffer_receiver_pwm[(2*i)+1]+buffer_receiver_pwm[2*i]*256;
+        if(data_pwm >= 1100 && data_pwm <= 1900)
+        {
+          pwm[i].pulsewidth_us(data_pwm);
+        }
+      }
+    }
   }
 }
 
