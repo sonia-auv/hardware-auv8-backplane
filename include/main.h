@@ -15,6 +15,9 @@
 #define nb_12v 2
 #define nb_fan 2
 
+#define R1 100000
+#define R2 10000
+
 #define turn_on_temp 40.0
 #define turn_off_temp 25.0
 

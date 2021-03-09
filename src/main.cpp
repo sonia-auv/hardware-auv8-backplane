@@ -13,8 +13,8 @@ void led_feedbackFunction()
 
   while(true)
   {
-    battery1_value = readfromAnalog(INPUT_BATT1, vref);
-    battery2_value = readfromAnalog(INPUT_BATT2, vref);
+    battery1_value = readfromAnalog(INPUT_BATT1, vref, R1, R2);
+    battery2_value = readfromAnalog(INPUT_BATT2, vref, R1, R2);
 
     if(battery1_value > batt_3led)                               // Full - 16,4V
     {
@@ -106,8 +106,8 @@ void voltageBattery()
   while(true)
   {
     rs.read(cmd_array,nb_command,battery_receive);
-    putFloatInArray(battery_send,readfromAnalog(INPUTBATT1, vref));
-    putFloatInArray(battery_send,readfromAnalog(INPUTBATT2, vref), 4);
+    putFloatInArray(battery_send,readfromAnalog(INPUTBATT1, vref, R1, R2));
+    putFloatInArray(battery_send,readfromAnalog(INPUTBATT2, vref, R1, R2), 4);
     rs.write(BACKPLANE_ID,cmd_array[0],nb_byte_send,battery_send);
   }
 }
