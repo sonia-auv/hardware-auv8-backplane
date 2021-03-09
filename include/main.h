@@ -3,11 +3,11 @@
 
 #include "mbed.h"
 #include "rtos.h"
-#include "utility.h"
 #include "pinDef.h"
-#include "INA226.h"
-#include "TC74A5.h"
 #include "adress_I2C.h"
+#include "INA226.h"
+#include "Utility/utility.h"
+#include "TC74A5/TC74A5.h"
 #include "RS485/RS485.h"
 #include "RS485/RS485_definition.h"
 
