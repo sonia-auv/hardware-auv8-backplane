@@ -13,64 +13,78 @@ void led_feedbackFunction()
 
   while(true)
   {
-    battery1_value = readfromAnalog(INPUT_BATT1, vref, R1, R2);
-    battery2_value = readfromAnalog(INPUT_BATT2, vref, R1, R2);
+    battery1_value = sensor[10].getBusVolt();
+    battery2_value = sensor[11].getBusVolt();
 
-    if(battery1_value > batt_3led)                               // Full - 16,4V
+    if(battery1_value > 16.4)
     {
       LED3GBATT1 = 0;
       LED2GBATT1 = 0;
       LED1GBATT1 = 0;
       LEDRBATT1 = 1;
     }
-    else if (battery1_value <= batt_3led && battery1_value > batt_2led)       // 16,4V - 15,8V 
+    else if (battery1_value <= 16.4 && battery1_value > 15.8)
     {
       LED3GBATT1 = 1;
       LED2GBATT1 = 0;
       LED1GBATT1 = 0;
       LEDRBATT1 = 1;
     }
-    else if (battery1_value <= batt_2led && battery1_value > batt_1led)      // 15,8V - 15,4V
+    else if (battery1_value <= 15.8 && battery1_value > 15.4)
     {
       LED3GBATT1 = 1;
       LED2GBATT1 = 1;
       LED1GBATT1 = 0;
       LEDRBATT1 = 1;
     }
-    else                                           // 15,4V - 0V
+    else if (battery1_value <= 15.4 && battery1_value > 14.8)
     {
       LED3GBATT1 = 1;
       LED2GBATT1 = 1;
       LED1GBATT1 = 1;
       LEDRBATT1 = 0;
     }
-    if(battery2_value > batt_3led)                               // Full - 16,4V
+    else                                           // 14,8V est le minimum qu'on se donne
+    {
+      LED3GBATT1 = 1;
+      LED2GBATT1 = 1;
+      LED1GBATT1 = 1;
+      LEDRBATT1 = 1;
+    }
+    if(battery2_value > 16.4)
     {
       LED3GBATT2 = 0;
       LED2GBATT2 = 0;
       LED1GBATT2 = 0;
       LEDRBATT2 = 1;
     }
-    else if (battery2_value <= batt_3led && battery2_value > batt_2led)       // 16,4V - 15,8V 
+    else if (battery2_value <= 16.4 && battery2_value > 15.8)
     {
       LED3GBATT2 = 1;
       LED2GBATT2 = 0;
       LED1GBATT2 = 0;
       LEDRBATT2 = 1;
     }
-    else if (battery2_value <= batt_2led && battery2_value > batt_1led)      // 15,8V - 15,4V
+    else if (battery2_value <= 15.8 && battery2_value > 15.4)
     {
       LED3GBATT2 = 1;
       LED2GBATT2 = 1;
       LED1GBATT2 = 0;
       LEDRBATT2 = 1;
     }
-    else                                           // 15,4V - 0V
+    else if (battery2_value <= 15.4 && battery2_value > 14.8)
     {
       LED3GBATT2 = 1;
       LED2GBATT2 = 1;
       LED1GBATT2 = 1;
       LEDRBATT2 = 0;
+    }
+    else                                           // 14,8V est le minimum qu'on se donne
+    {
+      LED3GBATT2 = 1;
+      LED2GBATT2 = 1;
+      LED1GBATT2 = 1;
+      LEDRBATT2 = 1;
     }
     for(uint8_t i=0; i<nb_motor; ++i)
     {
@@ -106,8 +120,8 @@ void voltageBattery()
   while(true)
   {
     rs.read(cmd_array,nb_command,battery_receive);
-    putFloatInArray(battery_send,readfromAnalog(INPUTBATT1, vref, R1, R2));
-    putFloatInArray(battery_send,readfromAnalog(INPUTBATT2, vref, R1, R2), 4);
+    putFloatInArray(battery_send,sensor[10].getBusVolt());
+    putFloatInArray(battery_send,sensor[11].getBusVolt(), 4);
     rs.write(BACKPLANE_ID,cmd_array[0],nb_byte_send,battery_send);
   }
 }
