@@ -16,4 +16,7 @@
 #define I2C_TEMP1 (0x4D<<1)
 #define I2C_TEMP2 (0x4D<<1)
 
+#define I2C_DRIVER1 (0x60<<1)
+#define I2C_DRIVER2 (0x61<<1)
+
 #endif

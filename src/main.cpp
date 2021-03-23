@@ -10,6 +10,12 @@ void led_feedbackFunction()
 {
   double_t battery1_value = 0;
   double_t battery2_value = 0;
+  uint16_t stateBattery1 = 0;
+  uint16_t stateBattery2 = 0;
+  uint16_t stateMotor = 0;
+  uint8_t j = 0;
+
+  RESET_DRIVER = 1;
 
   while(true)
   {
@@ -18,85 +24,63 @@ void led_feedbackFunction()
 
     if(battery1_value > 16.4)
     {
-      LED3GBATT1 = 0;
-      LED2GBATT1 = 0;
-      LED1GBATT1 = 0;
-      LEDRBATT1 = 1;
+      stateBattery1 = 0b00010101;
     }
     else if (battery1_value <= 16.4 && battery1_value > 15.8)
     {
-      LED3GBATT1 = 1;
-      LED2GBATT1 = 0;
-      LED1GBATT1 = 0;
-      LEDRBATT1 = 1;
+      stateBattery1 = 0b00010100;
     }
     else if (battery1_value <= 15.8 && battery1_value > 15.4)
     {
-      LED3GBATT1 = 1;
-      LED2GBATT1 = 1;
-      LED1GBATT1 = 0;
-      LEDRBATT1 = 1;
+      stateBattery1 = 0b00010000;
     }
     else if (battery1_value <= 15.4 && battery1_value > 14.8)
     {
-      LED3GBATT1 = 1;
-      LED2GBATT1 = 1;
-      LED1GBATT1 = 1;
-      LEDRBATT1 = 0;
+      stateBattery1 = 0b0100000;
     }
     else                                           // 14,8V est le minimum qu'on se donne
     {
-      LED3GBATT1 = 1;
-      LED2GBATT1 = 1;
-      LED1GBATT1 = 1;
-      LEDRBATT1 = 1;
+      stateBattery1 = 0b00000000;
     }
-    if(battery2_value > 16.4)
+    if(battery2_value > 16.4)                      // Connections pour la batterie 2 sont inversées
     {
-      LED3GBATT2 = 0;
-      LED2GBATT2 = 0;
-      LED1GBATT2 = 0;
-      LEDRBATT2 = 1;
+      stateBattery2 = 0b01010100;
     }
     else if (battery2_value <= 16.4 && battery2_value > 15.8)
     {
-      LED3GBATT2 = 1;
-      LED2GBATT2 = 0;
-      LED1GBATT2 = 0;
-      LEDRBATT2 = 1;
+      stateBattery2 = 0b00010100;
     }
     else if (battery2_value <= 15.8 && battery2_value > 15.4)
     {
-      LED3GBATT2 = 1;
-      LED2GBATT2 = 1;
-      LED1GBATT2 = 0;
-      LEDRBATT2 = 1;
+      stateBattery2 = 0b00000100;
     }
     else if (battery2_value <= 15.4 && battery2_value > 14.8)
     {
-      LED3GBATT2 = 1;
-      LED2GBATT2 = 1;
-      LED1GBATT2 = 1;
-      LEDRBATT2 = 0;
+      stateBattery2 = 0b00000001;
     }
     else                                           // 14,8V est le minimum qu'on se donne
     {
-      LED3GBATT2 = 1;
-      LED2GBATT2 = 1;
-      LED1GBATT2 = 1;
-      LEDRBATT2 = 1;
+      stateBattery2 = 0b00000000;
     }
-    for(uint8_t i=0; i<nb_motor; ++i)
+
+    ledDriver1.setLEDs((stateBattery1*256) + stateBattery2);
+
+    for(uint8_t i=0; i<nb_motor/2; ++i)
     {
-      if(enable_motor_data[i] == 1)
-      {
-        motor_power_good[i] = 0;
-      }
-      else
-      {
-        motor_power_good[i] = 1;
-      }
+      stateMotor = enable_motor_data[i]*(2^(i*2)) + stateMotor;
     }
+
+    stateMotor = stateMotor*256;
+    j = 0;
+
+    for(uint8_t i=nb_motor-1; i>nb_motor/2-1; ++i)
+    {
+      stateMotor = enable_motor_data[i]*(2^(j*2)) + stateMotor;
+      ++j;
+    }
+
+    ledDriver2.setLEDs(stateMotor);
+
     if(Killswitch == 0)
     {
       LEDKILL = 1;
@@ -282,9 +266,10 @@ void function_fan()
 
 int main()
 {
+  RESET_DRIVER = 0;
+
   for(uint8_t i=0; i<nb_motor; ++i)
   {
-    motor_power_good[i] = 1;
     pwm[i] = 1500;
     enable_motor[i] = 0;
   }
@@ -293,16 +278,6 @@ int main()
   {
     fan[i] = 0;
   }
-
-  LED3GBATT1 = 1;
-  LED2GBATT1 = 1;
-  LED1GBATT1 = 1;
-  LEDRBATT1 = 1;
-  LED3GBATT2 = 1;
-  LED2GBATT2 = 1;
-  LED1GBATT2 = 1;
-  LEDRBATT2 = 1;
-  LEDKILL = 1;
 
   for(uint8_t i=0; i<(nb_motor+nb_12v); ++i)
   {
