@@ -302,8 +302,8 @@ int main()
   inputbattery.start(voltageBattery);
   inputbattery.set_priority(osPriorityAboveNormal1);
 
-  voltageread.start(readVoltage);
-  voltageread.set_priority(osPriorityAboveNormal1);
+  //voltageread.start(readVoltage);
+  //voltageread.set_priority(osPriorityAboveNormal1);
 
   currentread.start(readCurrent);
   currentread.set_priority(osPriorityAboveNormal2);
