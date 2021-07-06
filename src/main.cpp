@@ -299,27 +299,27 @@ int main()
   ledfeedback.start(led_feedbackFunction);
   ledfeedback.set_priority(osPriorityAboveNormal);
 
-  inputbattery.start(voltageBattery);
-  inputbattery.set_priority(osPriorityAboveNormal1);
+  //inputbattery.start(voltageBattery);
+  //inputbattery.set_priority(osPriorityAboveNormal1);
 
   //voltageread.start(readVoltage);
   //voltageread.set_priority(osPriorityAboveNormal1);
 
-  currentread.start(readCurrent);
-  currentread.set_priority(osPriorityAboveNormal2);
+  //currentread.start(readCurrent);
+  //currentread.set_priority(osPriorityAboveNormal2);
 
-  motorenable.start(enableMotor);
-  motorenable.set_priority(osPriorityAboveNormal2);
+  //motorenable.start(enableMotor);
+  //motorenable.set_priority(osPriorityAboveNormal2);
 
-  readmotorstate.start(readmotor);
-  readmotorstate.set_priority(osPriorityAboveNormal1);
+  //readmotorstate.start(readmotor);
+  //readmotorstate.set_priority(osPriorityAboveNormal1);
 
-  emergencystop.start(killswitchreadout);
-  emergencystop.set_priority(osPriorityAboveNormal);
+  //emergencystop.start(killswitchreadout);
+  //emergencystop.set_priority(osPriorityAboveNormal);
 
-  pwmcommand.start(function_pwm);
-  pwmcommand.set_priority(osPriorityHigh);
+  //pwmcommand.start(function_pwm);
+  //pwmcommand.set_priority(osPriorityHigh);
 
-  fancontroller.start(function_fan);
-  fancontroller.set_priority(osPriorityAboveNormal);
+  //fancontroller.start(function_fan);
+  //fancontroller.set_priority(osPriorityAboveNormal);
 }
