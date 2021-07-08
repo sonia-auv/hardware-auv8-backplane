@@ -7,7 +7,7 @@
 #include "adress_I2C.h"
 #include "INA226.h"
 #include "Utility/utility.h"
-#include "PCA9531.h"
+#include "PCA9531/PCA9531.h"
 #include "TC74A5/TC74A5.h"
 #include "RS485/RS485.h"
 #include "RS485/RS485_definition.h"
