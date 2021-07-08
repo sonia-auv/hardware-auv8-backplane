@@ -19,8 +19,8 @@ void led_feedbackFunction()
 
   while(true)
   {
-    battery1_value = sensor[10].getBusVolt();
-    battery2_value = sensor[11].getBusVolt();
+    battery1_value = sensor[8].getBusVolt();
+    battery2_value = sensor[9].getBusVolt();
 
     if(battery1_value > 16.4)
     {
@@ -65,17 +65,19 @@ void led_feedbackFunction()
 
     ledDriver1.setLEDs((stateBattery1*256) + stateBattery2);
 
+    stateMotor = 0;
+
     for(uint8_t i=0; i<nb_motor/2; ++i)
     {
-      stateMotor = enable_motor_data[i]*(2^(i*2)) + stateMotor;
+      stateMotor = enable_motor_data[i]*pow(2, i*2) + stateMotor;
     }
 
     stateMotor = stateMotor*256;
     j = 0;
 
-    for(uint8_t i=nb_motor-1; i>nb_motor/2-1; ++i)
+    for(uint8_t i=nb_motor-1; i>(nb_motor/2)-1; --i)
     {
-      stateMotor = enable_motor_data[i]*(2^(j*2)) + stateMotor;
+      stateMotor = enable_motor_data[i]*pow(2, j*2) + stateMotor;
       ++j;
     }
 
@@ -93,7 +95,7 @@ void led_feedbackFunction()
   }
 }
 
-void voltageBattery()
+/*void voltageBattery()
 {
   uint8_t cmd_array[1] = {CMD_BP_VBATT};
   uint8_t battery_receive[255]= {0};
@@ -104,11 +106,11 @@ void voltageBattery()
   while(true)
   {
     rs.read(cmd_array,nb_command,battery_receive);
-    putFloatInArray(battery_send,sensor[10].getBusVolt());
-    putFloatInArray(battery_send,sensor[11].getBusVolt(), 4);
+    putFloatInArray(battery_send,sensor[8].getBusVolt());
+    putFloatInArray(battery_send,sensor[9].getBusVolt(), 4);
     rs.write(BACKPLANE_ID,cmd_array[0],nb_byte_send,battery_send);
   }
-}
+}*/
 
 void readVoltage()
 {
@@ -268,6 +270,9 @@ int main()
 {
   RESET_DRIVER = 0;
 
+  enable_motor_data[0] = 1;
+  enable_motor_data[4] = 1;
+
   for(uint8_t i=0; i<nb_motor; ++i)
   {
     pwm[i] = 1500;
@@ -302,24 +307,24 @@ int main()
   //inputbattery.start(voltageBattery);
   //inputbattery.set_priority(osPriorityAboveNormal1);
 
-  //voltageread.start(readVoltage);
-  //voltageread.set_priority(osPriorityAboveNormal1);
+  voltageread.start(readVoltage);
+  voltageread.set_priority(osPriorityAboveNormal1);
 
-  //currentread.start(readCurrent);
-  //currentread.set_priority(osPriorityAboveNormal2);
+  currentread.start(readCurrent);
+  currentread.set_priority(osPriorityAboveNormal2);
 
-  //motorenable.start(enableMotor);
-  //motorenable.set_priority(osPriorityAboveNormal2);
+  motorenable.start(enableMotor);
+  motorenable.set_priority(osPriorityAboveNormal2);
 
-  //readmotorstate.start(readmotor);
-  //readmotorstate.set_priority(osPriorityAboveNormal1);
+  readmotorstate.start(readmotor);
+  readmotorstate.set_priority(osPriorityAboveNormal1);
 
-  //emergencystop.start(killswitchreadout);
-  //emergencystop.set_priority(osPriorityAboveNormal);
+  emergencystop.start(killswitchreadout);
+  emergencystop.set_priority(osPriorityAboveNormal);
 
-  //pwmcommand.start(function_pwm);
-  //pwmcommand.set_priority(osPriorityHigh);
+  pwmcommand.start(function_pwm);
+  pwmcommand.set_priority(osPriorityHigh);
 
-  //fancontroller.start(function_fan);
-  //fancontroller.set_priority(osPriorityAboveNormal);
+  fancontroller.start(function_fan);
+  fancontroller.set_priority(osPriorityAboveNormal);
 }

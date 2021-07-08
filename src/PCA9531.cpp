@@ -23,11 +23,10 @@ void PCA9531::setLEDs(uint16_t state)
 
 void PCA9531::setSelectorLEDs(uint8_t state, uint8_t selector)
 {
-    char temp[3];
+    char temp[2];
 
-    temp[0] = addr;
-    temp[1] = selector;
-    temp[2] = state;
+    temp[0] = selector;
+    temp[1] = state;
 
-    _i2c->write(addr, temp, 3);
+    _i2c->write(addr, temp, 2);
 }
