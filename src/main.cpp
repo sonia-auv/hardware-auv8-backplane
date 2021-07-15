@@ -6,6 +6,8 @@
 
 #include "main.h"
 
+void check_mask(INA226 sensor);
+
 void led_feedbackFunction()
 {
   double_t battery1_value = 0;
@@ -19,7 +21,9 @@ void led_feedbackFunction()
 
   while(true)
   {
+    check_mask(sensor[8]);
     battery1_value = sensor[8].getBusVolt();
+    check_mask(sensor[9]);
     battery2_value = sensor[9].getBusVolt();
 
     if(battery1_value > 16.4)
@@ -127,6 +131,7 @@ void readVoltage()
     rs.read(cmd_array,nb_command,voltage_receive);
     for(uint8_t i=0; i<nb_sensor; ++i)
     {
+      check_mask(sensor[i]);
       voltage = sensor[i].getBusVolt();
       putFloatInArray(voltage_send, voltage, i*4);
     }
@@ -149,7 +154,8 @@ void readCurrent()
     rs.read(cmd_array,nb_command,current_receive);
     for(uint8_t i=0; i<nb_sensor; ++i)
     {
-      current = sensor[i].getBusVolt();
+      check_mask(sensor[i]);
+      current = sensor[i].getCurrent();
       putFloatInArray(current_send, current, i*4);
     }
     rs.write(BACKPLANE_ID, cmd_array[0], nb_byte_send, current_send);
@@ -226,8 +232,8 @@ void function_pwm()
   uint8_t buffer_receiver_pwm[255];
   uint8_t nb_command = 1;
   uint8_t size_command = 16;
-
   uint16_t data_pwm;
+
   while(true)
   {
     if(rs.read(cmd_array, nb_command, buffer_receiver_pwm) == size_command && Killswitch == 0)
@@ -266,16 +272,24 @@ void function_fan()
   }
 }
 
+void check_mask(INA226 sensor)
+{
+  uint8_t data_ready = 0;
+
+  while(data_ready == 0)
+  {
+    data_ready = ((sensor.getMaskEnable()>>3) & 0x01);
+    ThisThread::sleep_for(2);
+  }
+}
+
 int main()
 {
   RESET_DRIVER = 0;
 
-  enable_motor_data[0] = 1;
-  enable_motor_data[4] = 1;
-
   for(uint8_t i=0; i<nb_motor; ++i)
   {
-    pwm[i] = 1500;
+    pwm[i].pulsewidth_us(1500);
     enable_motor[i] = 0;
   }
 
