@@ -128,13 +128,13 @@ void readVoltage()
 
   while(true)
   {
-    rs.read(cmd_array,nb_command,voltage_receive);
     for(uint8_t i=0; i<nb_sensor; ++i)
     {
       check_mask(sensor[i]);
       voltage = sensor[i].getBusVolt();
       putFloatInArray(voltage_send, voltage, i*4);
     }
+    rs.read(cmd_array,nb_command,voltage_receive);
     rs.write(BACKPLANE_ID, cmd_array[0], nb_byte_send, voltage_send);
   }
 }
@@ -151,13 +151,13 @@ void readCurrent()
 
   while(true)
   {
-    rs.read(cmd_array,nb_command,current_receive);
     for(uint8_t i=0; i<nb_sensor; ++i)
     {
       check_mask(sensor[i]);
       current = sensor[i].getCurrent();
       putFloatInArray(current_send, current, i*4);
     }
+    rs.read(cmd_array,nb_command,current_receive);
     rs.write(BACKPLANE_ID, cmd_array[0], nb_byte_send, current_send);
   }
 }
@@ -252,18 +252,18 @@ void function_pwm()
 
 void function_fan()
 {
-  double_t temp[nb_fan];
+  double_t temp;
 
   while(true)
   {
     for(uint8_t i=0; i<nb_fan; ++i)
     {
-      temp[i] = tempSensor[i].getTemp();
-      if(temp[i] >= turn_on_temp && fan[i] == 0)
+      temp = tempSensor[i].getTemp();
+      if(temp >= turn_on_temp && fan[i] == 0)
       {
         fan[i] = 1;
       }
-      else if(temp[i] <= turn_off_temp && fan[i] == 1)
+      else if(temp <= turn_off_temp && fan[i] == 1)
       {
         fan[i] = 0;
       }
@@ -279,7 +279,7 @@ void check_mask(INA226 sensor)
   while(data_ready == 0)
   {
     data_ready = ((sensor.getMaskEnable()>>3) & 0x01);
-    ThisThread::sleep_for(2);
+    ThisThread::sleep_for(1);
   }
 }
 
