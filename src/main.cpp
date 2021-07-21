@@ -99,23 +99,6 @@ void led_feedbackFunction()
   }
 }
 
-/*void voltageBattery()
-{
-  uint8_t cmd_array[1] = {CMD_BP_VBATT};
-  uint8_t battery_receive[255]= {0};
-  uint8_t battery_send[255]= {0};
-  uint8_t nb_command = 1;
-  uint8_t nb_byte_send = 8;
-
-  while(true)
-  {
-    rs.read(cmd_array,nb_command,battery_receive);
-    putFloatInArray(battery_send,sensor[8].getBusVolt());
-    putFloatInArray(battery_send,sensor[9].getBusVolt(), 4);
-    rs.write(BACKPLANE_ID,cmd_array[0],nb_byte_send,battery_send);
-  }
-}*/
-
 void readVoltage()
 {
   uint8_t cmd_array[1]={CMD_BP_VOLTAGE};
@@ -317,9 +300,6 @@ int main()
 
   ledfeedback.start(led_feedbackFunction);
   ledfeedback.set_priority(osPriorityAboveNormal);
-
-  //inputbattery.start(voltageBattery);
-  //inputbattery.set_priority(osPriorityAboveNormal1);
 
   voltageread.start(readVoltage);
   voltageread.set_priority(osPriorityAboveNormal1);
