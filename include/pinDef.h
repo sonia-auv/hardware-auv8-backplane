@@ -19,7 +19,7 @@
 #define PWM_7 PC_8
 #define PWM_8 PE_6
 
-#define KILLSWITCH PD_2
+#define KILLSWITCH PD_3
 
 #define FAN_1 PE_1
 #define FAN_2 PE_0

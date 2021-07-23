@@ -26,6 +26,7 @@
 #define CMD_BP_CURRENT 3
 #define CMD_BP_ENABLEMOTOR 4
 #define CMD_BP_READMOTOR 5
+#define CMD_PWM 6
 
 
 #define CONFIG      0x4527

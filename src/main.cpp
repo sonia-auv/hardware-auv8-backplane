@@ -272,8 +272,9 @@ int main()
 
   for(uint8_t i=0; i<nb_motor; ++i)
   {
+    pwm[i].period_us(2000);
     pwm[i].pulsewidth_us(1500);
-    enable_motor[i] = 0;
+    enable_motor_data[i] = 1;
   }
 
   for(uint8_t i=0; i<nb_fan; ++i)
@@ -299,26 +300,26 @@ int main()
   }
 
   ledfeedback.start(led_feedbackFunction);
-  ledfeedback.set_priority(osPriorityAboveNormal);
+  ledfeedback.set_priority(osPriorityHigh);
 
   voltageread.start(readVoltage);
-  voltageread.set_priority(osPriorityAboveNormal1);
+  voltageread.set_priority(osPriorityHigh);
 
   currentread.start(readCurrent);
-  currentread.set_priority(osPriorityAboveNormal2);
+  currentread.set_priority(osPriorityHigh);
 
   motorenable.start(enableMotor);
-  motorenable.set_priority(osPriorityAboveNormal2);
+  motorenable.set_priority(osPriorityHigh);
 
   readmotorstate.start(readmotor);
-  readmotorstate.set_priority(osPriorityAboveNormal1);
+  readmotorstate.set_priority(osPriorityHigh);
 
   emergencystop.start(killswitchreadout);
-  emergencystop.set_priority(osPriorityAboveNormal);
+  emergencystop.set_priority(osPriorityHigh);
 
   pwmcommand.start(function_pwm);
   pwmcommand.set_priority(osPriorityHigh);
 
   fancontroller.start(function_fan);
-  fancontroller.set_priority(osPriorityAboveNormal);
+  fancontroller.set_priority(osPriorityHigh);
 }
