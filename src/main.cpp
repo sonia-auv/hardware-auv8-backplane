@@ -327,6 +327,6 @@ int main()
   pwmcommand.start(function_pwm);
   pwmcommand.set_priority(osPriorityHigh);
 
-  //fancontroller.start(function_fan);
-  //fancontroller.set_priority(osPriorityHigh);
+  fancontroller.start(function_fan);
+  fancontroller.set_priority(osPriorityHigh);
 }
