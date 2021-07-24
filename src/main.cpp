@@ -21,10 +21,10 @@ void led_feedbackFunction()
 
   while(true)
   {
-    check_mask(sensor[8]);
+    /*check_mask(sensor[8]);
     battery1_value = sensor[8].getBusVolt();
     check_mask(sensor[9]);
-    battery2_value = sensor[9].getBusVolt();
+    battery2_value = sensor[9].getBusVolt();*/
 
     if(battery1_value > 16.4)
     {
@@ -289,7 +289,7 @@ int main()
     fan[i] = 0;
   }
 
-  for(uint8_t i=0; i<(nb_motor+nb_12v); ++i)
+  /*for(uint8_t i=0; i<(nb_motor+nb_12v); ++i)
   {
     sensor[i].setConfig(CONFIG);
   }
@@ -304,16 +304,16 @@ int main()
   {
     sensor[i+nb_motor].setCalibration(CALIBRATION_12V);
     sensor[i+nb_motor].setCurrentLSB(CURRENTLSB_12V);
-  }
+  }*/
 
   ledfeedback.start(led_feedbackFunction);
   ledfeedback.set_priority(osPriorityHigh);
 
-  voltageread.start(readVoltage);
-  voltageread.set_priority(osPriorityHigh);
+  //voltageread.start(readVoltage);
+  //voltageread.set_priority(osPriorityHigh);
 
-  currentread.start(readCurrent);
-  currentread.set_priority(osPriorityHigh);
+  //currentread.start(readCurrent);
+  //currentread.set_priority(osPriorityHigh);
 
   motorenable.start(enableMotor);
   motorenable.set_priority(osPriorityHigh);
@@ -327,6 +327,6 @@ int main()
   pwmcommand.start(function_pwm);
   pwmcommand.set_priority(osPriorityHigh);
 
-  fancontroller.start(function_fan);
-  fancontroller.set_priority(osPriorityHigh);
+  //fancontroller.start(function_fan);
+  //fancontroller.set_priority(osPriorityHigh);
 }
