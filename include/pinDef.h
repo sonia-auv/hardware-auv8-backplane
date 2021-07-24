@@ -12,12 +12,12 @@
 
 #define PWM_1 PD_15
 #define PWM_2 PD_14
-#define PWM_3 PC_6
-#define PWM_4 PC_7
+#define PWM_3 PE_6
+#define PWM_4 PC_8
 #define PWM_5 PD_13
 #define PWM_6 PD_12
-#define PWM_7 PC_8
-#define PWM_8 PE_6
+#define PWM_7 PC_7
+#define PWM_8 PC_6
 
 #define KILLSWITCH PD_3
 

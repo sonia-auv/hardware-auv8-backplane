@@ -219,14 +219,21 @@ void function_pwm()
 
   while(true)
   {
-    if(rs.read(cmd_array, nb_command, buffer_receiver_pwm) == size_command && Killswitch == 0)
+    if(rs.read(cmd_array, nb_command, buffer_receiver_pwm) == size_command)
     {
       for(uint8_t i=0; i<nb_motor; ++i)
       {
-        data_pwm = buffer_receiver_pwm[(2*i)+1]+buffer_receiver_pwm[2*i]*256;
-        if(data_pwm >= 1100 && data_pwm <= 1900)
+        if(Killswitch == 0)
         {
-          pwm[i].pulsewidth_us(data_pwm);
+          data_pwm = buffer_receiver_pwm[(2*i)+1]+buffer_receiver_pwm[2*i]*256;
+          if(data_pwm >= 1100 && data_pwm <= 1900)
+          {
+            pwm[i].pulsewidth_us(data_pwm);
+          }
+        }
+        else
+        {
+          pwm[i].pulsewidth_us(1500);
         }
       }
     }
@@ -274,7 +281,7 @@ int main()
   {
     pwm[i].period_us(2000);
     pwm[i].pulsewidth_us(1500);
-    enable_motor_data[i] = 1;
+    enable_motor_data[i] = 0;
   }
 
   for(uint8_t i=0; i<nb_fan; ++i)
