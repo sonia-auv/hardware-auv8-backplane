@@ -21,9 +21,9 @@ void led_feedbackFunction()
 
   while(true)
   {
-    /*check_mask(sensor[8]);
-    battery1_value = sensor[8].getBusVolt();
-    check_mask(sensor[9]);
+    check_mask(sensor[4]); //8
+    battery1_value = sensor[4].getBusVolt();
+    /*check_mask(sensor[9]);
     battery2_value = sensor[9].getBusVolt();*/
 
     if(battery1_value > 16.4)
@@ -95,17 +95,18 @@ void led_feedbackFunction()
     {
       LEDKILL = 0;
     }
-    ThisThread::sleep_for(2000);
+    ThisThread::sleep_for(500);
   }
 }
 
 void readVoltage()
 {
-  uint8_t cmd_array[1]={CMD_BP_VOLTAGE};
+  uint8_t cmd_array[1]={CMD_VOLTAGE};
   uint8_t voltage_receive[255]={0};
   uint8_t voltage_send[255]={0};
   uint8_t nb_command = 1;
-  uint8_t nb_sensor = nb_motor+nb_12v;
+  //uint8_t nb_sensor = nb_motor+nb_12v;
+  uint8_t nb_sensor = 5;
   uint8_t nb_byte_send = 4*(nb_sensor);
   double_t voltage;
 
@@ -118,17 +119,18 @@ void readVoltage()
       putFloatInArray(voltage_send, voltage, i*4);
     }
     rs.read(cmd_array,nb_command,voltage_receive);
-    rs.write(BACKPLANE_ID, cmd_array[0], nb_byte_send, voltage_send);
+    rs.write(SLAVE_BACKPLANE, cmd_array[0], nb_byte_send, voltage_send);
   }
 }
 
 void readCurrent()
 {
-  uint8_t cmd_array[1]={CMD_BP_CURRENT};
+  uint8_t cmd_array[1]={CMD_CURRENT};
   uint8_t current_receive[255]={0};
   uint8_t current_send[255]={0};
   uint8_t nb_command = 1;
-  uint8_t nb_sensor = nb_motor+nb_12v;
+  //uint8_t nb_sensor = nb_motor+nb_12v;
+  uint8_t nb_sensor = 5;
   uint8_t nb_byte_send = 4*(nb_sensor);
   double_t current;
 
@@ -141,17 +143,17 @@ void readCurrent()
       putFloatInArray(current_send, current, i*4);
     }
     rs.read(cmd_array,nb_command,current_receive);
-    rs.write(BACKPLANE_ID, cmd_array[0], nb_byte_send, current_send);
+    rs.write(SLAVE_BACKPLANE, cmd_array[0], nb_byte_send, current_send);
   }
 }
 
 void enableMotor()
 {
-  uint8_t cmd_array[1]={CMD_BP_ENABLEMOTOR};
+  uint8_t cmd_array[1]={CMD_ACT_MOTOR};
   uint8_t motor_receive[255]={0};
   uint8_t motor_send[255]={0};
   uint8_t nb_command = 1;
-  uint8_t nb_byte_send = 8;
+  uint8_t nb_byte_send = nb_motor;
 
   while(true)
   {
@@ -162,18 +164,18 @@ void enableMotor()
         enable_motor_data[i] = motor_receive[i];
         motor_send[i] = motor_receive[i];
       }
-      rs.write(BACKPLANE_ID, cmd_array[0], nb_byte_send, motor_send);
+      rs.write(SLAVE_BACKPLANE, cmd_array[0], nb_byte_send, motor_send);
     }
   }  
 }
 
 void readmotor()
 {
-  uint8_t cmd_array[1]={CMD_BP_READMOTOR};
+  uint8_t cmd_array[1]={CMD_READ_MOTOR};
   uint8_t motor_receive[255]={0};
   uint8_t motor_send[255]={0};
   uint8_t nb_command = 1;
-  uint8_t nb_byte_send = 8;
+  uint8_t nb_byte_send = nb_motor;
 
   while(true)
   {
@@ -182,7 +184,7 @@ void readmotor()
     {
       motor_send[i] = enable_motor_data[i];
     }
-    rs.write(BACKPLANE_ID, cmd_array[0], nb_byte_send, motor_send);
+    rs.write(SLAVE_BACKPLANE, cmd_array[0], nb_byte_send, motor_send);
   }
 }
 
@@ -246,16 +248,18 @@ void function_fan()
 
   while(true)
   {
-    for(uint8_t i=0; i<nb_fan; ++i)
+    for(uint8_t i=0; i<nb_fan-1; ++i)
     {
       temp = tempSensor[i].getTemp();
       if(temp >= turn_on_temp && fan[i] == 0)
       {
-        fan[i] = 1;
+        fan[0] = 1;
+        fan[1] = 1;
       }
       else if(temp <= turn_off_temp && fan[i] == 1)
       {
-        fan[i] = 0;
+        fan[0] = 0;
+        fan[1] = 0;
       }
     }
     ThisThread::sleep_for(10000);
@@ -289,31 +293,33 @@ int main()
     fan[i] = 0;
   }
 
-  /*for(uint8_t i=0; i<(nb_motor+nb_12v); ++i)
+  for(uint8_t i=0; i<5; ++i)
   {
     sensor[i].setConfig(CONFIG);
   }
 
-  for(uint8_t i=0; i<nb_motor; ++i)
+  for(uint8_t i=0; i<4; ++i)
   {
     sensor[i].setCalibration(CALIBRATION_MOTEUR);
     sensor[i].setCurrentLSB(CURRENTLSB_MOTEUR);
   }
 
-  for(uint8_t i=0; i<nb_12v; ++i)
+  for(uint8_t i=4; i<5; ++i)
   {
-    sensor[i+nb_motor].setCalibration(CALIBRATION_12V);
-    sensor[i+nb_motor].setCurrentLSB(CURRENTLSB_12V);
-  }*/
+    //sensor[i+nb_motor].setCalibration(CALIBRATION_12V);
+    //sensor[i+nb_motor].setCurrentLSB(CURRENTLSB_12V);
+    sensor[i].setCalibration(CALIBRATION_12V);
+    sensor[i].setCurrentLSB(CURRENTLSB_12V);
+  }
 
   ledfeedback.start(led_feedbackFunction);
   ledfeedback.set_priority(osPriorityHigh);
 
-  //voltageread.start(readVoltage);
-  //voltageread.set_priority(osPriorityHigh);
+  voltageread.start(readVoltage);
+  voltageread.set_priority(osPriorityHigh);
 
-  //currentread.start(readCurrent);
-  //currentread.set_priority(osPriorityHigh);
+  currentread.start(readCurrent);
+  currentread.set_priority(osPriorityHigh);
 
   motorenable.start(enableMotor);
   motorenable.set_priority(osPriorityHigh);

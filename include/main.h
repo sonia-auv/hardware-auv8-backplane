@@ -16,18 +16,8 @@
 #define nb_12v 2
 #define nb_fan 2
 
-#define turn_on_temp 40.0
+#define turn_on_temp 65.0
 #define turn_off_temp 25.0
-
-#define BACKPLANE_ID 0
-
-#define CMD_BP_VBATT 1
-#define CMD_BP_VOLTAGE 2
-#define CMD_BP_CURRENT 3
-#define CMD_BP_ENABLEMOTOR 4
-#define CMD_BP_READMOTOR 5
-#define CMD_PWM 6
-
 
 #define CONFIG      0x4527
 #define CALIBRATION_MOTEUR 0xA7C
@@ -56,13 +46,18 @@ DigitalOut RESET_DRIVER(LED_RESET);
 //             OBJECTS DEFINITION
 //###################################################
 
-RS485 rs(BACKPLANE_ID);
+RS485 rs(SLAVE_BACKPLANE);
 I2C i2c1_bus(I2C1_SDA, I2C1_SCL);
 I2C i2c2_bus(I2C2_SDA, I2C2_SCL);
 
-INA226 sensor[nb_motor+nb_12v] = {INA226(&i2c2_bus, I2C_M1), INA226(&i2c2_bus, I2C_M2), INA226(&i2c1_bus, I2C_M3), 
+/*INA226 sensor[nb_motor+nb_12v] = {INA226(&i2c2_bus, I2C_M1), INA226(&i2c2_bus, I2C_M2), INA226(&i2c1_bus, I2C_M3), 
     INA226(&i2c1_bus, I2C_M4), INA226(&i2c2_bus, I2C_M5), INA226(&i2c2_bus, I2C_M6), INA226(&i2c1_bus, I2C_M7), 
-    INA226(&i2c1_bus, I2C_M8), INA226(&i2c1_bus, I2C_12V1), INA226(&i2c2_bus, I2C_12V2)};
+    INA226(&i2c1_bus, I2C_M8), INA226(&i2c1_bus, I2C_12V1), INA226(&i2c2_bus, I2C_12V2)};*/
+
+INA226 sensor[5] = {INA226(&i2c1_bus, I2C_M3), 
+    INA226(&i2c1_bus, I2C_M4), INA226(&i2c1_bus, I2C_M7), 
+    INA226(&i2c1_bus, I2C_M8), INA226(&i2c1_bus, I2C_12V1)};
+
 
 TC74A5 tempSensor[nb_fan] = {TC74A5(&i2c1_bus, I2C_TEMP1), TC74A5(&i2c2_bus, I2C_TEMP2)};
 
