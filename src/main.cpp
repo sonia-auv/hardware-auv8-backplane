@@ -315,11 +315,11 @@ int main()
   ledfeedback.start(led_feedbackFunction);
   ledfeedback.set_priority(osPriorityHigh);
 
-  voltageread.start(readVoltage);
+  /*voltageread.start(readVoltage);
   voltageread.set_priority(osPriorityHigh);
 
   currentread.start(readCurrent);
-  currentread.set_priority(osPriorityHigh);
+  currentread.set_priority(osPriorityHigh);*/
 
   motorenable.start(enableMotor);
   motorenable.set_priority(osPriorityHigh);
