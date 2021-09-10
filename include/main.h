@@ -34,6 +34,9 @@ PwmOut pwm[nb_motor] = {PwmOut(PWM_1), PwmOut (PWM_2), PwmOut(PWM_3), PwmOut(PWM
 
 DigitalIn Killswitch(KILLSWITCH);
 
+DigitalIn Fault[nb_motor] = {DigitalIn(FAULT_M1), DigitalIn(FAULT_M2), DigitalIn(FAULT_M3), DigitalIn(FAULT_M4),
+    DigitalIn(FAULT_M5), DigitalIn(FAULT_M6), DigitalIn(FAULT_M7), DigitalIn(FAULT_M8)};
+
 DigitalOut enable_motor[nb_motor] = {DigitalOut(MTR_1), DigitalOut(MTR_2), DigitalOut(MTR_3), DigitalOut(MTR_4), 
     DigitalOut(MTR_5), DigitalOut(MTR_6), DigitalOut(MTR_7), DigitalOut(MTR_8)};
 
@@ -46,18 +49,13 @@ DigitalOut RESET_DRIVER(LED_RESET);
 //             OBJECTS DEFINITION
 //###################################################
 
-RS485 rs(SLAVE_BACKPLANE);
+RS485 rs(SLAVE_PSU0);
 I2C i2c1_bus(I2C1_SDA, I2C1_SCL);
 I2C i2c2_bus(I2C2_SDA, I2C2_SCL);
 
-/*INA226 sensor[nb_motor+nb_12v] = {INA226(&i2c2_bus, I2C_M1), INA226(&i2c2_bus, I2C_M2), INA226(&i2c1_bus, I2C_M3), 
+INA226 sensor[nb_motor+nb_12v] = {INA226(&i2c2_bus, I2C_M1), INA226(&i2c2_bus, I2C_M2), INA226(&i2c1_bus, I2C_M3), 
     INA226(&i2c1_bus, I2C_M4), INA226(&i2c2_bus, I2C_M5), INA226(&i2c2_bus, I2C_M6), INA226(&i2c1_bus, I2C_M7), 
-    INA226(&i2c1_bus, I2C_M8), INA226(&i2c1_bus, I2C_12V1), INA226(&i2c2_bus, I2C_12V2)};*/
-
-INA226 sensor[5] = {INA226(&i2c1_bus, I2C_M3), 
-    INA226(&i2c1_bus, I2C_M4), INA226(&i2c1_bus, I2C_M7), 
-    INA226(&i2c1_bus, I2C_M8), INA226(&i2c1_bus, I2C_12V1)};
-
+    INA226(&i2c1_bus, I2C_M8), INA226(&i2c1_bus, I2C_12V1), INA226(&i2c2_bus, I2C_12V2)};
 
 TC74A5 tempSensor[nb_fan] = {TC74A5(&i2c1_bus, I2C_TEMP1), TC74A5(&i2c2_bus, I2C_TEMP2)};
 
@@ -75,6 +73,7 @@ Thread currentread;
 Thread motorenable;
 Thread readmotorstate;
 Thread emergencystop;
+Thread faultdetection;
 Thread pwmcommand;
 Thread fancontroller;
 
@@ -83,5 +82,6 @@ Thread fancontroller;
 //###################################################
 
 uint8_t enable_motor_data[nb_motor] = {0, 0, 0, 0, 0, 0, 0, 0};
+uint8_t fault_detection[nb_motor] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 #endif
