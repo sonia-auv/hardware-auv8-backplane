@@ -52,6 +52,7 @@ DigitalOut RESET_DRIVER(LED_RESET);
 RS485 rs(SLAVE_PSU0);
 I2C i2c1_bus(I2C1_SDA, I2C1_SCL);
 I2C i2c2_bus(I2C2_SDA, I2C2_SCL);
+Mutex i2c_bus;
 
 INA226 sensor[nb_motor+nb_12v] = {INA226(&i2c2_bus, I2C_M1), INA226(&i2c2_bus, I2C_M2), INA226(&i2c1_bus, I2C_M3), 
     INA226(&i2c1_bus, I2C_M4), INA226(&i2c2_bus, I2C_M5), INA226(&i2c2_bus, I2C_M6), INA226(&i2c1_bus, I2C_M7), 
