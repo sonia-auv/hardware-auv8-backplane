@@ -229,7 +229,7 @@ void fault_detection_read()
       }
       else if(enable_motor[i] && !Fault[i])
       {
-        fault_detection[i] = 0; // 2 is right value. Need to fix the hardware
+        fault_detection[i] = 2;
       }
       else
       {
@@ -340,14 +340,16 @@ int main()
     sensor[i+nb_motor].setCurrentLSB(CURRENTLSB_12V);
   }
 
+  RESET_DRIVER = 1;
+
   ledDriver2.setPrescaler(151, 0);
   ledDriver2.setDutyCycle(64,0);
 
   ledfeedback.start(led_feedbackFunction);
   ledfeedback.set_priority(osPriorityAboveNormal);
 
-  voltageread.start(readVoltage);
-  voltageread.set_priority(osPriorityHigh);
+  /*voltageread.start(readVoltage);
+  voltageread.set_priority(osPriorityHigh);*/
 
   /*currentread.start(readCurrent);
   currentread.set_priority(osPriorityHigh);*/
