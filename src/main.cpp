@@ -6,7 +6,7 @@
 
 #include "main.h"
 
-void check_mask(INA226 sensor);
+void check_mask(INA228 sensor);
 
 void led_feedbackFunction()
 {
@@ -294,13 +294,13 @@ void function_fan()
   }
 }
 
-void check_mask(INA226 sensor)
+void check_mask(INA228 sensor)
 {
   uint8_t data_ready = 0;
 
   while(data_ready == 0)
   {
-    data_ready = ((sensor.getMaskEnable()>>3) & 0x01);
+    data_ready = ((sensor.getAlertFlags()>>1) & 0x01);
     ThisThread::sleep_for(1);
   }
 }
@@ -323,19 +323,20 @@ int main()
 
   for(uint8_t i=0; i<nb_12v+nb_motor; ++i)
   {
-    sensor[i].setConfig(CONFIG);
+    sensor[i].setConfig(CONFIG_SET);
+    sensor[i].setConfigADC(CONFIG_ADC_SET);
   }
 
   for(uint8_t i=0; i<nb_motor; ++i)
   {
-    sensor[i].setCalibration(CALIBRATION_MOTEUR);
-    sensor[i].setCurrentLSB(CURRENTLSB_MOTEUR);
+    sensor[i].setShuntCal(SHUNT_CAL_MOTOR);
+    sensor[i].setCurrentLSB(CURRENT_LSB_ALL);
   }
 
   for(uint8_t i=0; i<nb_12v; ++i)
   {
-    sensor[i+nb_motor].setCalibration(CALIBRATION_12V);
-    sensor[i+nb_motor].setCurrentLSB(CURRENTLSB_12V);
+    sensor[i+nb_motor].setShuntCal(SHUNT_CAL_12V);
+    sensor[i+nb_motor].setCurrentLSB(CURRENT_LSB_ALL);
   }
 
   RESET_DRIVER = 1;
