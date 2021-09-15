@@ -25,6 +25,10 @@
 #define SHUNT_CAL_12V 0x4E2
 #define CURRENT_LSB_ALL 0.000048
 
+#define NEUTRAL_PWM 1500
+#define MAX_PWM 1900
+#define MIN_PWM 1100
+
 //###################################################
 //             PINOUT FONCTION DEFINITION
 //###################################################
@@ -40,7 +44,7 @@ DigitalIn Fault[nb_motor] = {DigitalIn(FAULT_M1), DigitalIn(FAULT_M2), DigitalIn
 DigitalOut enable_motor[nb_motor] = {DigitalOut(MTR_1), DigitalOut(MTR_2), DigitalOut(MTR_3), DigitalOut(MTR_4), 
     DigitalOut(MTR_5), DigitalOut(MTR_6), DigitalOut(MTR_7), DigitalOut(MTR_8)};
 
-DigitalOut fan[nb_fan] = {DigitalOut(FAN_1), DigitalOut(FAN_2)};
+DigitalOut fan[nb_fan] = {DigitalOut(FAN_2), DigitalOut(FAN_1)};
 
 DigitalOut LEDKILL(LED_KILL);
 DigitalOut RESET_DRIVER(LED_RESET);
