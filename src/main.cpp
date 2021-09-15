@@ -6,7 +6,7 @@
 
 #include "main.h"
 
-void check_mask(INA226 sensor);
+void check_mask(INA228 sensor);
 
 void led_feedbackFunction()
 {
@@ -15,32 +15,24 @@ void led_feedbackFunction()
   uint16_t stateBattery1 = 0;
   uint16_t stateBattery2 = 0;
   uint16_t stateMotor = 0;
-  uint8_t j = 0;
-
-  RESET_DRIVER = 1;
 
   while(true)
   {
-    check_mask(sensor[4]); //8
-    battery1_value = sensor[4].getBusVolt();
-    /*check_mask(sensor[9]);
-    battery2_value = sensor[9].getBusVolt();*/
-
     if(battery1_value > 16.4)
     {
-      stateBattery1 = 0b00010101;
+      stateBattery1 = 0b01010100;
     }
     else if (battery1_value <= 16.4 && battery1_value > 15.8)
     {
-      stateBattery1 = 0b00010100;
+      stateBattery1 = 0b01010000;
     }
     else if (battery1_value <= 15.8 && battery1_value > 15.4)
     {
-      stateBattery1 = 0b00010000;
+      stateBattery1 = 0b01000000;
     }
     else if (battery1_value <= 15.4 && battery1_value > 14.8)
     {
-      stateBattery1 = 0b0100000;
+      stateBattery1 = 0b0000001;
     }
     else                                           // 14,8V est le minimum qu'on se donne
     {
@@ -48,44 +40,39 @@ void led_feedbackFunction()
     }
     if(battery2_value > 16.4)                      // Connections pour la batterie 2 sont inversées
     {
-      stateBattery2 = 0b01010100;
+      stateBattery2 = 0b00010101;
     }
     else if (battery2_value <= 16.4 && battery2_value > 15.8)
     {
-      stateBattery2 = 0b00010100;
+      stateBattery2 = 0b00000101;
     }
     else if (battery2_value <= 15.8 && battery2_value > 15.4)
     {
-      stateBattery2 = 0b00000100;
+      stateBattery2 = 0b00000001;
     }
     else if (battery2_value <= 15.4 && battery2_value > 14.8)
     {
-      stateBattery2 = 0b00000001;
+      stateBattery2 = 0b01000000;
     }
     else                                           // 14,8V est le minimum qu'on se donne
     {
       stateBattery2 = 0b00000000;
     }
 
-    ledDriver1.setLEDs((stateBattery1*256) + stateBattery2);
-
     stateMotor = 0;
 
     for(uint8_t i=0; i<nb_motor/2; ++i)
     {
-      stateMotor = enable_motor_data[i]*pow(2, i*2) + stateMotor;
+      stateMotor += fault_detection[i];
+      stateMotor = (stateMotor<<0x2);
     }
-
-    stateMotor = stateMotor*256;
-    j = 0;
 
     for(uint8_t i=nb_motor-1; i>(nb_motor/2)-1; --i)
     {
-      stateMotor = enable_motor_data[i]*pow(2, j*2) + stateMotor;
-      ++j;
-    }
+      stateMotor += fault_detection[i];
 
-    ledDriver2.setLEDs(stateMotor);
+      if(i != 4) stateMotor = (stateMotor<<0x2);
+    }
 
     if(Killswitch == 0)
     {
@@ -95,6 +82,19 @@ void led_feedbackFunction()
     {
       LEDKILL = 0;
     }
+    
+    i2c_bus.lock();
+
+    check_mask(sensor[8]);
+    battery1_value = sensor[8].getBusVolt();
+    check_mask(sensor[9]);
+    battery2_value = sensor[9].getBusVolt();
+
+    ledDriver1.setLEDs((stateBattery1*256) + stateBattery2);
+    ledDriver2.setLEDs(stateMotor);
+    
+    i2c_bus.unlock();
+
     ThisThread::sleep_for(500);
   }
 }
@@ -105,21 +105,23 @@ void readVoltage()
   uint8_t voltage_receive[255]={0};
   uint8_t voltage_send[255]={0};
   uint8_t nb_command = 1;
-  //uint8_t nb_sensor = nb_motor+nb_12v;
-  uint8_t nb_sensor = 5;
+  uint8_t nb_sensor = nb_motor+nb_12v;
   uint8_t nb_byte_send = 4*(nb_sensor);
   double_t voltage;
 
   while(true)
   {
+    i2c_bus.lock();
     for(uint8_t i=0; i<nb_sensor; ++i)
     {
       check_mask(sensor[i]);
       voltage = sensor[i].getBusVolt();
       putFloatInArray(voltage_send, voltage, i*4);
     }
+    i2c_bus.unlock();
+
     rs.read(cmd_array,nb_command,voltage_receive);
-    rs.write(SLAVE_BACKPLANE, cmd_array[0], nb_byte_send, voltage_send);
+    rs.write(SLAVE_PSU0, cmd_array[0], nb_byte_send, voltage_send);
   }
 }
 
@@ -129,21 +131,23 @@ void readCurrent()
   uint8_t current_receive[255]={0};
   uint8_t current_send[255]={0};
   uint8_t nb_command = 1;
-  //uint8_t nb_sensor = nb_motor+nb_12v;
-  uint8_t nb_sensor = 5;
+  uint8_t nb_sensor = nb_motor+nb_12v;
   uint8_t nb_byte_send = 4*(nb_sensor);
   double_t current;
 
   while(true)
   {
+    i2c_bus.lock();
     for(uint8_t i=0; i<nb_sensor; ++i)
     {
       check_mask(sensor[i]);
       current = sensor[i].getCurrent();
       putFloatInArray(current_send, current, i*4);
     }
+    i2c_bus.unlock();
+
     rs.read(cmd_array,nb_command,current_receive);
-    rs.write(SLAVE_BACKPLANE, cmd_array[0], nb_byte_send, current_send);
+    rs.write(SLAVE_PSU0, cmd_array[0], nb_byte_send, current_send);
   }
 }
 
@@ -164,7 +168,7 @@ void enableMotor()
         enable_motor_data[i] = motor_receive[i];
         motor_send[i] = motor_receive[i];
       }
-      rs.write(SLAVE_BACKPLANE, cmd_array[0], nb_byte_send, motor_send);
+      rs.write(SLAVE_PSU0, cmd_array[0], nb_byte_send, motor_send);
     }
   }  
 }
@@ -182,9 +186,9 @@ void readmotor()
     rs.read(cmd_array, nb_command, motor_receive);
     for(uint8_t i=0; i<nb_motor; ++i)
     {
-      motor_send[i] = enable_motor_data[i];
+      motor_send[i] = fault_detection[i];
     }
-    rs.write(SLAVE_BACKPLANE, cmd_array[0], nb_byte_send, motor_send);
+    rs.write(SLAVE_PSU0, cmd_array[0], nb_byte_send, motor_send);
   }
 }
 
@@ -208,6 +212,29 @@ void killswitchreadout()
       }
     }
     ThisThread::sleep_for(250);
+  }
+}
+
+void fault_detection_read()
+{
+  while(true)
+  {
+    for(uint8_t i=0; i<nb_motor; ++i)
+    {
+      if(enable_motor[i] && Fault[i])
+      {
+        fault_detection[i] = 1;
+      }
+      else if(enable_motor[i] && !Fault[i])
+      {
+        fault_detection[i] = 2;
+      }
+      else
+      {
+        fault_detection[i] = 0;
+      }
+    }
+    ThisThread::sleep_for(1000);
   }
 }
 
@@ -248,31 +275,32 @@ void function_fan()
 
   while(true)
   {
-    for(uint8_t i=0; i<nb_fan-1; ++i)
+    i2c_bus.lock();
+    for(uint8_t i=0; i<nb_fan; ++i)
     {
       temp = tempSensor[i].getTemp();
       if(temp >= turn_on_temp && fan[i] == 0)
       {
-        fan[0] = 1;
-        fan[1] = 1;
+        fan[i] = 1;
       }
       else if(temp <= turn_off_temp && fan[i] == 1)
       {
-        fan[0] = 0;
-        fan[1] = 0;
+        fan[i] = 0;
       }
     }
+    i2c_bus.unlock();
+
     ThisThread::sleep_for(10000);
   }
 }
 
-void check_mask(INA226 sensor)
+void check_mask(INA228 sensor)
 {
   uint8_t data_ready = 0;
 
   while(data_ready == 0)
   {
-    data_ready = ((sensor.getMaskEnable()>>3) & 0x01);
+    data_ready = ((sensor.getAlertFlags()>>1) & 0x01);
     ThisThread::sleep_for(1);
   }
 }
@@ -293,32 +321,36 @@ int main()
     fan[i] = 0;
   }
 
-  for(uint8_t i=0; i<5; ++i)
+  for(uint8_t i=0; i<nb_12v+nb_motor; ++i)
   {
-    sensor[i].setConfig(CONFIG);
+    sensor[i].setConfig(CONFIG_SET);
+    sensor[i].setConfigADC(CONFIG_ADC_SET);
   }
 
-  for(uint8_t i=0; i<4; ++i)
+  for(uint8_t i=0; i<nb_motor; ++i)
   {
-    sensor[i].setCalibration(CALIBRATION_MOTEUR);
-    sensor[i].setCurrentLSB(CURRENTLSB_MOTEUR);
+    sensor[i].setShuntCal(SHUNT_CAL_MOTOR);
+    sensor[i].setCurrentLSB(CURRENT_LSB_ALL);
   }
 
-  for(uint8_t i=4; i<5; ++i)
+  for(uint8_t i=0; i<nb_12v; ++i)
   {
-    //sensor[i+nb_motor].setCalibration(CALIBRATION_12V);
-    //sensor[i+nb_motor].setCurrentLSB(CURRENTLSB_12V);
-    sensor[i].setCalibration(CALIBRATION_12V);
-    sensor[i].setCurrentLSB(CURRENTLSB_12V);
+    sensor[i+nb_motor].setShuntCal(SHUNT_CAL_12V);
+    sensor[i+nb_motor].setCurrentLSB(CURRENT_LSB_ALL);
   }
+
+  RESET_DRIVER = 1;
+
+  ledDriver2.setPrescaler(151, 0);
+  ledDriver2.setDutyCycle(64,0);
 
   ledfeedback.start(led_feedbackFunction);
-  ledfeedback.set_priority(osPriorityHigh);
+  ledfeedback.set_priority(osPriorityAboveNormal);
 
   /*voltageread.start(readVoltage);
-  voltageread.set_priority(osPriorityHigh);
+  voltageread.set_priority(osPriorityHigh);*/
 
-  currentread.start(readCurrent);
+  /*currentread.start(readCurrent);
   currentread.set_priority(osPriorityHigh);*/
 
   motorenable.start(enableMotor);
@@ -330,9 +362,12 @@ int main()
   emergencystop.start(killswitchreadout);
   emergencystop.set_priority(osPriorityHigh);
 
+  faultdetection.start(fault_detection_read);
+  faultdetection.set_priority(osPriorityAboveNormal7);
+
   pwmcommand.start(function_pwm);
   pwmcommand.set_priority(osPriorityHigh);
 
   fancontroller.start(function_fan);
-  fancontroller.set_priority(osPriorityHigh);
+  fancontroller.set_priority(osPriorityAboveNormal7);
 }

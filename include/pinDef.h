@@ -33,6 +33,15 @@
 #define MTR_7 PE_3
 #define MTR_8 PE_2
 
+#define FAULT_M1 PD_8
+#define FAULT_M2 PD_9
+#define FAULT_M3 PC_13
+#define FAULT_M4 PC_14
+#define FAULT_M5 PD_10
+#define FAULT_M6 PD_11
+#define FAULT_M7 PC_15
+#define FAULT_M8 PC_0
+
 #define LED_KILL PE_15
 #define LED_RESET PE_9
 
