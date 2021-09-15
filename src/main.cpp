@@ -16,8 +16,6 @@ void led_feedbackFunction()
   uint16_t stateBattery2 = 0;
   uint16_t stateMotor = 0;
 
-  RESET_DRIVER = 1;
-
   while(true)
   {
     if(battery1_value > 16.4)
