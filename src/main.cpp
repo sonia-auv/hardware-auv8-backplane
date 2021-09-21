@@ -342,8 +342,8 @@ int main()
 
   while(i<nb_motor+nb_12v)
   {
-    sensor[i+nb_motor].setShuntCal(SHUNT_CAL_12V);
-    sensor[i+nb_motor].setCurrentLSB(CURRENT_LSB_12V);
+    sensor[i].setShuntCal(SHUNT_CAL_12V);
+    sensor[i].setCurrentLSB(CURRENT_LSB_12V);
     if(sensor[i].getShuntCal() == SHUNT_CAL_12V || sensor[i].getCurrentLSB() == CURRENT_LSB_12V) ++i;
   }
 
