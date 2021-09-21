@@ -74,7 +74,7 @@ void led_feedbackFunction()
       if(i != 4) stateMotor = (stateMotor<<0x2);
     }
 
-    if(Killswitch == 0)
+    if(Killswitch.read() == 0)
     {
       LEDKILL = 1;
     }
@@ -330,13 +330,21 @@ int main()
   for(uint8_t i=0; i<nb_motor; ++i)
   {
     sensor[i].setShuntCal(SHUNT_CAL_MOTOR);
-    sensor[i].setCurrentLSB(CURRENT_LSB_ALL);
+    sensor[i].setCurrentLSB(CURRENT_LSB_MTR);
+  }
+
+  uint16_t value = sensor[1].getShuntCal();
+  float_t value2 = sensor[1].getCurrentLSB();
+
+  if(value != SHUNT_CAL_MOTOR && value2 != CURRENT_LSB_MTR)
+  {
+    RESET_DRIVER = 0;
   }
 
   for(uint8_t i=0; i<nb_12v; ++i)
   {
     sensor[i+nb_motor].setShuntCal(SHUNT_CAL_12V);
-    sensor[i+nb_motor].setCurrentLSB(CURRENT_LSB_ALL);
+    sensor[i+nb_motor].setCurrentLSB(CURRENT_LSB_12V);
   }
 
   RESET_DRIVER = 1;
@@ -347,11 +355,11 @@ int main()
   ledfeedback.start(led_feedbackFunction);
   ledfeedback.set_priority(osPriorityAboveNormal);
 
-  /*voltageread.start(readVoltage);
-  voltageread.set_priority(osPriorityHigh);*/
+  voltageread.start(readVoltage);
+  voltageread.set_priority(osPriorityHigh);
 
-  /*currentread.start(readCurrent);
-  currentread.set_priority(osPriorityHigh);*/
+  currentread.start(readCurrent);
+  currentread.set_priority(osPriorityHigh);
 
   motorenable.start(enableMotor);
   motorenable.set_priority(osPriorityHigh);
