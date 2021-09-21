@@ -141,6 +141,7 @@ void readCurrent()
     for(uint8_t i=0; i<nb_sensor; ++i)
     {
       check_mask(sensor[i]);
+      //current = sensor[i].getShuntVolt();
       current = sensor[i].getCurrent();
       putFloatInArray(current_send, current, i*4);
     }
@@ -321,10 +322,14 @@ int main()
     fan[i] = 0;
   }
 
-  for(uint8_t i=0; i<nb_12v+nb_motor; ++i)
+  uint8_t i = 0;
+
+  while(i<nb_12v+nb_motor)
   {
     sensor[i].setConfig(CONFIG_SET);
     sensor[i].setConfigADC(CONFIG_ADC_SET);
+
+    if(sensor[i].getConfig() == CONFIG_SET || sensor[i].getConfigADC() == CONFIG_ADC_SET) ++i;
   }
 
   for(uint8_t i=0; i<nb_motor; ++i)

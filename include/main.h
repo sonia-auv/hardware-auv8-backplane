@@ -19,8 +19,8 @@
 #define turn_on_temp 65.0
 #define turn_off_temp 25.0
 
-#define CONFIG_SET (0x3FD << 4)
-#define CONFIG_ADC_SET 0xFB6A
+#define CONFIG_SET (0x01 << 4)
+#define CONFIG_ADC_SET 0xFB6B
 #define SHUNT_CAL_MOTOR 0x186A
 #define SHUNT_CAL_12V 0xBB8
 #define CURRENT_LSB_MTR 0.000048
