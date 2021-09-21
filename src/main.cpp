@@ -328,28 +328,23 @@ int main()
   {
     sensor[i].setConfig(CONFIG_SET);
     sensor[i].setConfigADC(CONFIG_ADC_SET);
-
     if(sensor[i].getConfig() == CONFIG_SET || sensor[i].getConfigADC() == CONFIG_ADC_SET) ++i;
   }
 
-  for(uint8_t i=0; i<nb_motor; ++i)
+  i = 0;
+
+  while(i<nb_motor)
   {
     sensor[i].setShuntCal(SHUNT_CAL_MOTOR);
     sensor[i].setCurrentLSB(CURRENT_LSB_MTR);
+    if(sensor[i].getShuntCal() == SHUNT_CAL_MOTOR || sensor[i].getCurrentLSB() == CURRENT_LSB_MTR) ++i;
   }
 
-  uint16_t value = sensor[1].getShuntCal();
-  float_t value2 = sensor[1].getCurrentLSB();
-
-  if(value != SHUNT_CAL_MOTOR && value2 != CURRENT_LSB_MTR)
-  {
-    RESET_DRIVER = 0;
-  }
-
-  for(uint8_t i=0; i<nb_12v; ++i)
+  while(i<nb_motor+nb_12v)
   {
     sensor[i+nb_motor].setShuntCal(SHUNT_CAL_12V);
     sensor[i+nb_motor].setCurrentLSB(CURRENT_LSB_12V);
+    if(sensor[i].getShuntCal() == SHUNT_CAL_12V || sensor[i].getCurrentLSB() == CURRENT_LSB_12V) ++i;
   }
 
   RESET_DRIVER = 1;
