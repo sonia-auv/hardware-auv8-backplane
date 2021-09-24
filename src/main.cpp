@@ -141,7 +141,6 @@ void readCurrent()
     for(uint8_t i=0; i<nb_sensor; ++i)
     {
       check_mask(sensor[i]);
-      //current = sensor[i].getShuntVolt();
       current = sensor[i].getCurrent();
       putFloatInArray(current_send, current, i*4);
     }
