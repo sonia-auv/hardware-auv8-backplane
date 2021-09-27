@@ -34,11 +34,11 @@ void led_feedbackFunction()
     {
       stateBattery1 = 0b0000001;
     }
-    else                                           // 14,8V est le minimum qu'on se donne
+    else                                           // 14,8V is the lowest voltage we are confortable with
     {
       stateBattery1 = 0b00000000;
     }
-    if(battery2_value > 16.4)                      // Connections pour la batterie 2 sont inversées
+    if(battery2_value > 16.4)                      // Connection inverted on the led driver for battery 2
     {
       stateBattery2 = 0b00010101;
     }
@@ -54,7 +54,7 @@ void led_feedbackFunction()
     {
       stateBattery2 = 0b01000000;
     }
-    else                                           // 14,8V est le minimum qu'on se donne
+    else                                            // 14,8V is the lowest voltage we are confortable with
     {
       stateBattery2 = 0b00000000;
     }
@@ -74,7 +74,7 @@ void led_feedbackFunction()
       if(i != 4) stateMotor = (stateMotor<<0x2);
     }
 
-    if(Killswitch == 0)
+    if(Killswitch.read() == 0)
     {
       LEDKILL = 1;
     }
@@ -85,12 +85,12 @@ void led_feedbackFunction()
     
     i2c_bus.lock();
 
-    check_mask(sensor[8]);
+    check_mask(sensor[8]); // Verify voltage on accessory channels
     battery1_value = sensor[8].getBusVolt();
     check_mask(sensor[9]);
     battery2_value = sensor[9].getBusVolt();
 
-    ledDriver1.setLEDs((stateBattery1*256) + stateBattery2);
+    ledDriver1.setLEDs((stateBattery1 << 8) | stateBattery2);
     ledDriver2.setLEDs(stateMotor);
     
     i2c_bus.unlock();
@@ -255,14 +255,14 @@ void function_pwm()
         if(Killswitch == 0)
         {
           data_pwm = buffer_receiver_pwm[(2*i)+1]+buffer_receiver_pwm[2*i]*256;
-          if(data_pwm >= 1100 && data_pwm <= 1900)
+          if(data_pwm >= MIN_PWM && data_pwm <= MAX_PWM)
           {
             pwm[i].pulsewidth_us(data_pwm);
           }
         }
         else
         {
-          pwm[i].pulsewidth_us(1500);
+          pwm[i].pulsewidth_us(NEUTRAL_PWM);
         }
       }
     }
@@ -276,10 +276,10 @@ void function_fan()
   while(true)
   {
     i2c_bus.lock();
-    for(uint8_t i=0; i<nb_fan; ++i)
+    for(uint8_t i=0; i<nb_fan; ++i) // Fan digital output is inverted to account for the placement of the fan in the rack
     {
-      temp = tempSensor[i].getTemp();
-      if(temp >= turn_on_temp && fan[i] == 0)
+      temp = tempSensor[i].getTemp(); // TODO add the temperature of the INA228 to get a more precise activation
+      if(temp >= turn_on_temp && fan[i] == 0) // Thermostat behavior
       {
         fan[i] = 1;
       }
@@ -321,22 +321,29 @@ int main()
     fan[i] = 0;
   }
 
-  for(uint8_t i=0; i<nb_12v+nb_motor; ++i)
+  uint8_t i = 0;
+
+  while(i<nb_12v+nb_motor)
   {
     sensor[i].setConfig(CONFIG_SET);
     sensor[i].setConfigADC(CONFIG_ADC_SET);
+    if(sensor[i].getConfig() == CONFIG_SET || sensor[i].getConfigADC() == CONFIG_ADC_SET) ++i;
   }
 
-  for(uint8_t i=0; i<nb_motor; ++i)
+  i = 0;
+
+  while(i<nb_motor)
   {
     sensor[i].setShuntCal(SHUNT_CAL_MOTOR);
-    sensor[i].setCurrentLSB(CURRENT_LSB_ALL);
+    sensor[i].setCurrentLSB(CURRENT_LSB_MTR);
+    if(sensor[i].getShuntCal() == SHUNT_CAL_MOTOR || sensor[i].getCurrentLSB() == CURRENT_LSB_MTR) ++i;
   }
 
-  for(uint8_t i=0; i<nb_12v; ++i)
+  while(i<nb_motor+nb_12v)
   {
-    sensor[i+nb_motor].setShuntCal(SHUNT_CAL_12V);
-    sensor[i+nb_motor].setCurrentLSB(CURRENT_LSB_ALL);
+    sensor[i].setShuntCal(SHUNT_CAL_12V);
+    sensor[i].setCurrentLSB(CURRENT_LSB_12V);
+    if(sensor[i].getShuntCal() == SHUNT_CAL_12V || sensor[i].getCurrentLSB() == CURRENT_LSB_12V) ++i;
   }
 
   RESET_DRIVER = 1;
@@ -347,11 +354,11 @@ int main()
   ledfeedback.start(led_feedbackFunction);
   ledfeedback.set_priority(osPriorityAboveNormal);
 
-  /*voltageread.start(readVoltage);
-  voltageread.set_priority(osPriorityHigh);*/
+  voltageread.start(readVoltage);
+  voltageread.set_priority(osPriorityHigh);
 
-  /*currentread.start(readCurrent);
-  currentread.set_priority(osPriorityHigh);*/
+  currentread.start(readCurrent);
+  currentread.set_priority(osPriorityHigh);
 
   motorenable.start(enableMotor);
   motorenable.set_priority(osPriorityHigh);
