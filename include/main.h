@@ -17,10 +17,13 @@
 PwmOut pwm(PWM_1);
 
 DigitalOut mtr_enable(MTR_1);
-DigitalOut out_value1(OUT_VALUE1);
-DigitalOut out_value2(OUT_VALUE2);
 DigitalOut led2(LED2);
 DigitalOut led3(LED3);
+
+DigitalIn sw1(SWITCH1);
+DigitalIn sw2(SWITCH2);
+DigitalIn sw3(SWITCH3);
+DigitalIn sw4(SWITCH4);
 
 DigitalIn on_mtr(ON_MTR);
 DigitalIn kill(KILLSWITCH);
