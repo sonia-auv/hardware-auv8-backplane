@@ -25,7 +25,6 @@ DigitalIn sw2(SWITCH2);
 DigitalIn sw3(SWITCH3);
 DigitalIn sw4(SWITCH4);
 
-DigitalIn on_mtr(ON_MTR);
 DigitalIn kill(KILLSWITCH);
 
 #endif

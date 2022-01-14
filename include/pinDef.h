@@ -7,13 +7,13 @@
 
 #define PWM_1 PE_9
 
-#define SWITCH1 PA_7
-#define SWITCH2 PD_14
-#define SWITCH3 PD_15
-#define SWITCH4 PF_12
+#define SWITCH1 PC_1
+#define SWITCH2 PC_3
+#define SWITCH3 PC_0
+#define SWITCH4 PA_3
 
 #define MTR_1 PE_6
-#define ON_MTR PE_4
+// #define ON_MTR PE_4
 #define KILLSWITCH PG_9
 
 #endif

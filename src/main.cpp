@@ -15,7 +15,7 @@ int main()
 
   while (true)
   {
-    if(kill)
+    if(!kill)
     {
       led2 = 1;
       if(sw1)
