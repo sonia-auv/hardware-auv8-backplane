@@ -1,153 +1,44 @@
 /***
  * 
- * Example code: This code is a simple program that turn on/off a LED with a button while another LED flash.
+ * Author : Francis Alonzo
+ * 
+ * Hardware AUV8 Backplane
  * 
  ***/
 
 #include "main.h"
 
 void check_mask(INA228 sensor);
+void led_feedbackFunction(double_t batt1, double_t batt2);
 
-void led_feedbackFunction()
+void readSensor()
 {
-  double_t battery1_value = 0;
-  double_t battery2_value = 0;
-  uint16_t stateBattery1 = 0;
-  uint16_t stateBattery2 = 0;
-  uint16_t stateMotor = 0;
-
-  while(true)
-  {
-    if(battery1_value > 16.4)
-    {
-      stateBattery1 = 0b01010100;
-    }
-    else if (battery1_value <= 16.4 && battery1_value > 15.8)
-    {
-      stateBattery1 = 0b01010000;
-    }
-    else if (battery1_value <= 15.8 && battery1_value > 15.4)
-    {
-      stateBattery1 = 0b01000000;
-    }
-    else if (battery1_value <= 15.4 && battery1_value > 14.8)
-    {
-      stateBattery1 = 0b0000001;
-    }
-    else                                           // 14,8V is the lowest voltage we are confortable with
-    {
-      stateBattery1 = 0b00000000;
-    }
-    if(battery2_value > 16.4)                      // Connection inverted on the led driver for battery 2
-    {
-      stateBattery2 = 0b00010101;
-    }
-    else if (battery2_value <= 16.4 && battery2_value > 15.8)
-    {
-      stateBattery2 = 0b00000101;
-    }
-    else if (battery2_value <= 15.8 && battery2_value > 15.4)
-    {
-      stateBattery2 = 0b00000001;
-    }
-    else if (battery2_value <= 15.4 && battery2_value > 14.8)
-    {
-      stateBattery2 = 0b01000000;
-    }
-    else                                            // 14,8V is the lowest voltage we are confortable with
-    {
-      stateBattery2 = 0b00000000;
-    }
-
-    stateMotor = 0;
-
-    for(uint8_t i=0; i<nb_motor/2; ++i)
-    {
-      stateMotor += fault_detection[i];
-      stateMotor = (stateMotor<<0x2);
-    }
-
-    for(uint8_t i=nb_motor-1; i>(nb_motor/2)-1; --i)
-    {
-      stateMotor += fault_detection[i];
-
-      if(i != 4) stateMotor = (stateMotor<<0x2);
-    }
-
-    if(Killswitch.read() == 0)
-    {
-      LEDKILL = 1;
-    }
-    else
-    {
-      LEDKILL = 0;
-    }
-    
-    i2c_bus.lock();
-
-    check_mask(sensor[8]); // Verify voltage on accessory channels
-    battery1_value = sensor[8].getBusVolt();
-    check_mask(sensor[9]);
-    battery2_value = sensor[9].getBusVolt();
-
-    ledDriver1.setLEDs((stateBattery1 << 8) | stateBattery2);
-    ledDriver2.setLEDs(stateMotor);
-    
-    i2c_bus.unlock();
-
-    ThisThread::sleep_for(500);
-  }
-}
-
-void readVoltage()
-{
-  uint8_t cmd_array[1]={CMD_VOLTAGE};
-  uint8_t voltage_receive[255]={0};
+  uint8_t cmd_array[2]={CMD_VOLTAGE, CMD_CURRENT};
   uint8_t voltage_send[255]={0};
-  uint8_t nb_command = 1;
-  uint8_t nb_sensor = nb_motor+nb_12v;
-  uint8_t nb_byte_send = 4*(nb_sensor);
-  double_t voltage;
-
-  while(true)
-  {
-    i2c_bus.lock();
-    for(uint8_t i=0; i<nb_sensor; ++i)
-    {
-      check_mask(sensor[i]);
-      voltage = sensor[i].getBusVolt();
-      putFloatInArray(voltage_send, voltage, i*4);
-    }
-    i2c_bus.unlock();
-
-    rs.read(cmd_array,nb_command,voltage_receive);
-    rs.write(SLAVE_PSU0, cmd_array[0], nb_byte_send, voltage_send);
-  }
-}
-
-void readCurrent()
-{
-  uint8_t cmd_array[1]={CMD_CURRENT};
-  uint8_t current_receive[255]={0};
   uint8_t current_send[255]={0};
-  uint8_t nb_command = 1;
   uint8_t nb_sensor = nb_motor+nb_12v;
   uint8_t nb_byte_send = 4*(nb_sensor);
-  double_t current;
+  double_t voltage, current, batt1 = 0, batt2 = 0;
 
   while(true)
   {
-    i2c_bus.lock();
     for(uint8_t i=0; i<nb_sensor; ++i)
     {
       check_mask(sensor[i]);
-      current = sensor[i].getCurrent();
-      putFloatInArray(current_send, current, i*4);
-    }
-    i2c_bus.unlock();
 
-    rs.read(cmd_array,nb_command,current_receive);
-    rs.write(SLAVE_PSU0, cmd_array[0], nb_byte_send, current_send);
+      voltage = sensor[i].getBusVolt();
+      current = sensor[i].getCurrent();
+
+      putFloatInArray(voltage_send, voltage, i*4);
+      putFloatInArray(current_send, current, i*4);
+
+      if(i == 8) batt1 = voltage;
+      if(i == 9) batt2 = voltage;
+    }
+    led_feedbackFunction(batt1, batt2);
+    rs.write(SLAVE_PSU0, cmd_array[0], nb_byte_send, voltage_send);
+    rs.write(SLAVE_PSU0, cmd_array[1], nb_byte_send, current_send);
+    ThisThread::sleep_for(500);
   }
 }
 
@@ -176,19 +67,17 @@ void enableMotor()
 void readmotor()
 {
   uint8_t cmd_array[1]={CMD_READ_MOTOR};
-  uint8_t motor_receive[255]={0};
   uint8_t motor_send[255]={0};
-  uint8_t nb_command = 1;
   uint8_t nb_byte_send = nb_motor;
 
   while(true)
   {
-    rs.read(cmd_array, nb_command, motor_receive);
     for(uint8_t i=0; i<nb_motor; ++i)
     {
       motor_send[i] = fault_detection[i];
     }
     rs.write(SLAVE_PSU0, cmd_array[0], nb_byte_send, motor_send);
+    ThisThread::sleep_for(2500);
   }
 }
 
@@ -305,6 +194,81 @@ void check_mask(INA228 sensor)
   }
 }
 
+void led_feedbackFunction(double_t batt1, double_t batt2)
+{
+  uint16_t stateBattery1 = 0;
+  uint16_t stateBattery2 = 0;
+  uint16_t stateMotor = 0;
+
+  if(batt1 > 16.4)
+  {
+    stateBattery1 = 0b01010100;
+  }
+  else if (batt1 <= 16.4 && batt1 > 15.8)
+  {
+    stateBattery1 = 0b01010000;
+  }
+  else if (batt1 <= 15.8 && batt1 > 15.4)
+  {
+    stateBattery1 = 0b01000000;
+  }
+  else if (batt1 <= 15.4 && batt1 > 14.8)
+  {
+    stateBattery1 = 0b0000001;
+  }
+  else                                           // 14,8V is the lowest voltage we are confortable with
+  {
+    stateBattery1 = 0b00000000;
+  }
+  if(batt2 > 16.4)                      // Connection inverted on the led driver for battery 2
+  {
+    stateBattery2 = 0b00010101;
+  }
+  else if (batt2 <= 16.4 && batt2 > 15.8)
+  {
+    stateBattery2 = 0b00000101;
+  }
+  else if (batt2 <= 15.8 && batt2 > 15.4)
+  {
+    stateBattery2 = 0b00000001;
+  }
+  else if (batt2 <= 15.4 && batt2 > 14.8)
+  {
+    stateBattery2 = 0b01000000;
+  }
+  else                                            // 14,8V is the lowest voltage we are confortable with
+  {
+    stateBattery2 = 0b00000000;
+  }
+
+  stateMotor = 0;
+
+  for(uint8_t i=0; i<nb_motor/2; ++i)
+  {
+    stateMotor += fault_detection[i];
+    stateMotor = (stateMotor<<0x2);
+  }
+
+  for(uint8_t i=nb_motor-1; i>(nb_motor/2)-1; --i) // Not sure this works but the board is changing soon
+  {                                                // so I won't work on it
+    stateMotor += fault_detection[i];
+
+    if(i != 4) stateMotor = (stateMotor<<0x2);
+  }
+
+  if(Killswitch.read() == 0)
+  {
+    LEDKILL = 1;
+  }
+  else
+  {
+    LEDKILL = 0;
+  }
+
+  ledDriver1.setLEDs((stateBattery1 << 8) | stateBattery2);
+  ledDriver2.setLEDs(stateMotor);
+}
+
 int main()
 {
   RESET_DRIVER = 0;
@@ -351,14 +315,8 @@ int main()
   ledDriver2.setPrescaler(151, 0);
   ledDriver2.setDutyCycle(64,0);
 
-  ledfeedback.start(led_feedbackFunction);
-  ledfeedback.set_priority(osPriorityAboveNormal);
-
-  voltageread.start(readVoltage);
-  voltageread.set_priority(osPriorityHigh);
-
-  currentread.start(readCurrent);
-  currentread.set_priority(osPriorityHigh);
+  sensorread.start(readSensor);
+  sensorread.set_priority(osPriorityHigh);
 
   motorenable.start(enableMotor);
   motorenable.set_priority(osPriorityHigh);

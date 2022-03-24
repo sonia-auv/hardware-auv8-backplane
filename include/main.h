@@ -17,7 +17,7 @@
 #define nb_fan 2
 
 #define turn_on_temp 65.0
-#define turn_off_temp 25.0
+#define turn_off_temp 40.0
 
 #define CONFIG_SET (0x01 << 4)
 #define CONFIG_ADC_SET 0xFB6B
@@ -73,7 +73,7 @@ PCA9531 ledDriver2(&i2c1_bus, I2C_DRIVER2);
 //###################################################
 
 Thread ledfeedback;
-Thread inputbattery;
+Thread sensorread;
 Thread voltageread;
 Thread currentread;
 Thread motorenable;
